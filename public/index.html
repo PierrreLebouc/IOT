@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Domotique</title>
-    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -251,13 +251,6 @@
             z-index: 0;
         }
 
-        /* Thèmes de couleur */
-        .theme-warm .card-bg { background: linear-gradient(135deg, #2d1f3d 0%, #4a2c5a 30%, #e94560 150%); }
-        .theme-cool .card-bg { background: linear-gradient(135deg, #0d1b2a 0%, #1b3a4b 30%, #3d5a80 100%); }
-        .theme-night .card-bg { background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d2d5a 100%); }
-        .theme-forest .card-bg { background: linear-gradient(135deg, #1a2f1a 0%, #2d4a2d 30%, #4a7c59 100%); }
-        .theme-sunset .card-bg { background: linear-gradient(135deg, #2d1f1f 0%, #4a2c2c 30%, #c97b4b 100%); }
-
         /* Style clair pour les cartes de lieux */
         .location-card .card-bg {
             background: linear-gradient(135deg, #e8f4f8 0%, #d4e8ed 50%, #c5dfe6 100%) !important;
@@ -436,12 +429,6 @@
             z-index: -1;
             transition: background 0.8s ease;
         }
-
-        .theme-warm .details-bg, .details-bg.theme-warm { background: linear-gradient(180deg, #1a1a2e 0%, #2d1f3d 40%, #16213e 100%); }
-        .theme-cool .details-bg, .details-bg.theme-cool { background: linear-gradient(180deg, #0d1b2a 0%, #1b263b 40%, #415a77 100%); }
-        .theme-night .details-bg, .details-bg.theme-night { background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 40%, #16213e 100%); }
-        .theme-forest .details-bg, .details-bg.theme-forest { background: linear-gradient(180deg, #0f1a0f 0%, #1a2f1a 40%, #2d4a2d 100%); }
-        .theme-sunset .details-bg, .details-bg.theme-sunset { background: linear-gradient(180deg, #1a1212 0%, #2d1f1f 40%, #4a2c2c 100%); }
 
         /* Particles */
         .bg-particles {
@@ -734,7 +721,7 @@
     </div>
 
     <!-- ==========================================
-         PAGE 2: DASHBOARD PIÈCES D'UN LIEU
+         PAGE 2: DASHBOARD APPAREILS D'UN LIEU
     ========================================== -->
     <div class="page hidden" id="housePage">
         <header class="page-header">
@@ -746,7 +733,7 @@
                     Lieux
                 </button>
                 <h1 class="page-title" id="houseTitle">--</h1>
-                <p class="page-subtitle" id="houseSubtitle">-- pièces</p>
+                <p class="page-subtitle" id="houseSubtitle">-- appareils</p>
             </div>
             <div class="header-actions">
                 <button class="icon-btn" onclick="refreshData()" aria-label="Rafraîchir">
@@ -761,7 +748,7 @@
     </div>
 
     <!-- ==========================================
-         PAGE 3: DÉTAILS D'UNE PIÈCE
+         PAGE 3: DÉTAILS D'UN APPAREIL
     ========================================== -->
     <div class="page hidden" id="roomPage">
         <div class="details-bg" id="detailsBg"></div>
@@ -828,14 +815,17 @@
 
     <script>
         // ============================================
-        // CONFIGURATION
+        // CONFIGURATION SUPABASE
         // ============================================
         
-        const DB_PATH = 'domotique.db';
+        const SUPABASE_URL = 'https://wjigmyipcrbdunxgbtut.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaWdteWlwY3JiZHVueGdidHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg2NjIzODYsImV4cCI6MjA1NDIzODM4Nn0.sb_publishable_7XCTWEKGWCpyFOOLUF34Kg_ej83d_Fa';
         
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         // Configuration des capteurs
         const SENSOR_CONFIG = {
-            'T': {
+            'temperature': {
                 name: 'Température',
                 unit: '°C',
                 icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -850,9 +840,9 @@
                     if (val <= 26) return 'Chaud';
                     return 'Très chaud';
                 },
-                format: (val) => val.toFixed(1)
+                format: (val) => val ? val.toFixed(1) : '0.0'
             },
-            'L': {
+            'luminosity': {
                 name: 'Luminosité',
                 unit: ' lux',
                 icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -873,9 +863,9 @@
                     if (val < 800) return 'Bonne luminosité';
                     return 'Très lumineux';
                 },
-                format: (val) => Math.round(val).toString()
+                format: (val) => val ? Math.round(val).toString() : '0'
             },
-            'H': {
+            'humidity': {
                 name: 'Humidité',
                 unit: '%',
                 icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -890,184 +880,76 @@
                     if (val <= 70) return 'Humide';
                     return 'Très humide';
                 },
-                format: (val) => Math.round(val).toString()
-            },
-            'A': {
-                name: 'Qualité air',
-                unit: ' AQI',
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                </svg>`,
-                color: '#a29bfe',
-                class: 'air',
-                getStatus: (val) => {
-                    if (val <= 50) return 'Excellent';
-                    if (val <= 100) return 'Bon';
-                    if (val <= 150) return 'Modéré';
-                    if (val <= 200) return 'Mauvais';
-                    return 'Très mauvais';
-                },
-                format: (val) => Math.round(val).toString()
+                format: (val) => val ? Math.round(val).toString() : '0'
             }
         };
 
-        const THEMES = ['theme-warm', 'theme-cool', 'theme-night', 'theme-forest', 'theme-sunset'];
-
-        // Configuration des pièces avec icônes et couleurs
-        const ROOM_CONFIG = {
-            'Salon': {
+        // Configuration des types d'appareils
+        const DEVICE_CONFIG = {
+            'temperature_sensor': {
                 icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M20 10V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/>
-                    <path d="M4 10v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/>
-                    <path d="M2 10h20"/>
-                    <path d="M7 19v2M17 19v2"/>
+                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
                 </svg>`,
                 color: '#e17055',
                 gradient: 'linear-gradient(135deg, #2d1f1f 0%, #4a2c2c 30%, #e17055 150%)'
             },
-            'Chambre': {
+            'humidity_sensor': {
                 icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M3 13h18v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7Z"/>
-                    <path d="M3 13V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v5"/>
-                    <path d="M8 13v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    <path d="M5 21v-2M19 21v-2"/>
-                </svg>`,
-                color: '#a29bfe',
-                gradient: 'linear-gradient(135deg, #1f1f2d 0%, #2c2c4a 30%, #a29bfe 150%)'
-            },
-            'Cuisine': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M6 2v6a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V2"/>
-                    <path d="M9 2v8"/>
-                    <path d="M9 11v11"/>
-                    <path d="M18 2v4a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2V2"/>
-                    <path d="M16 8v14"/>
-                </svg>`,
-                color: '#fdcb6e',
-                gradient: 'linear-gradient(135deg, #2d2a1f 0%, #4a432c 30%, #fdcb6e 150%)'
-            },
-            'SalleDeBain': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1Z"/>
-                    <path d="M6 12V5a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2"/>
-                    <path d="M7 20v2M17 20v2"/>
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
                 </svg>`,
                 color: '#74b9ff',
                 gradient: 'linear-gradient(135deg, #1f2a2d 0%, #2c3d4a 30%, #74b9ff 150%)'
             },
-            'Bureau': {
+            'light_sensor': {
                 icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="4" width="20" height="12" rx="2"/>
-                    <path d="M8 20h8M12 16v4"/>
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
                 </svg>`,
-                color: '#00b894',
-                gradient: 'linear-gradient(135deg, #1f2d2a 0%, #2c4a3d 30%, #00b894 150%)'
-            },
-            'Garage': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M3 21V8l9-5 9 5v13"/>
-                    <rect x="6" y="12" width="12" height="9"/>
-                    <path d="M6 15h12M6 18h12"/>
-                </svg>`,
-                color: '#636e72',
-                gradient: 'linear-gradient(135deg, #1f2020 0%, #3d4142 30%, #636e72 150%)'
-            },
-            'Jardin': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M12 10a4 4 0 0 0-4 4"/>
-                    <path d="M12 10a4 4 0 0 1 4 4"/>
-                    <path d="M12 2v8"/>
-                    <path d="M12 14v8"/>
-                    <path d="M5 20c2-2 4-3 7-3s5 1 7 3"/>
-                </svg>`,
-                color: '#55a86b',
-                gradient: 'linear-gradient(135deg, #1a2f1a 0%, #2d4a2d 30%, #55a86b 150%)'
-            },
-            'Entrée': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                    <path d="M10 17l5-5-5-5"/>
-                    <path d="M15 12H3"/>
-                </svg>`,
-                color: '#fd79a8',
-                gradient: 'linear-gradient(135deg, #2d1f27 0%, #4a2c3d 30%, #fd79a8 150%)'
+                color: '#fdcb6e',
+                gradient: 'linear-gradient(135deg, #2d2a1f 0%, #4a432c 30%, #fdcb6e 150%)'
             },
             'default': {
                 icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    <polyline points="9,22 9,12 15,12 15,22"/>
+                    <rect x="2" y="4" width="20" height="12" rx="2"/>
+                    <path d="M8 20h8M12 16v4"/>
                 </svg>`,
                 color: '#b2bec3',
                 gradient: 'linear-gradient(135deg, #1f2020 0%, #3d4142 30%, #b2bec3 150%)'
             }
         };
 
-        function getRoomConfig(pieceName) {
-            // Recherche insensible à la casse et aux accents
-            const normalized = pieceName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            
-            for (const [key, config] of Object.entries(ROOM_CONFIG)) {
-                const normalizedKey = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if (normalized.includes(normalizedKey) || normalizedKey.includes(normalized)) {
-                    return config;
-                }
-            }
-            
-            // Recherche par mots-clés
-            if (normalized.includes('bain') || normalized.includes('wc') || normalized.includes('toilet') || normalized.includes('douche')) {
-                return ROOM_CONFIG['SalleDeBain'];
-            }
-            if (normalized.includes('chambre') || normalized.includes('bedroom') || normalized.includes('lit')) {
-                return ROOM_CONFIG['Chambre'];
-            }
-            if (normalized.includes('cuisine') || normalized.includes('kitchen')) {
-                return ROOM_CONFIG['Cuisine'];
-            }
-            if (normalized.includes('salon') || normalized.includes('sejour') || normalized.includes('living')) {
-                return ROOM_CONFIG['Salon'];
-            }
-            if (normalized.includes('bureau') || normalized.includes('office')) {
-                return ROOM_CONFIG['Bureau'];
-            }
-            if (normalized.includes('garage') || normalized.includes('parking')) {
-                return ROOM_CONFIG['Garage'];
-            }
-            if (normalized.includes('jardin') || normalized.includes('garden') || normalized.includes('terrasse') || normalized.includes('balcon')) {
-                return ROOM_CONFIG['Jardin'];
-            }
-            if (normalized.includes('entree') || normalized.includes('hall') || normalized.includes('couloir')) {
-                return ROOM_CONFIG['Entrée'];
-            }
-            
-            return ROOM_CONFIG['default'];
+        function getDeviceConfig(deviceType) {
+            return DEVICE_CONFIG[deviceType] || DEVICE_CONFIG['default'];
         }
+
+        const THEMES = ['theme-warm', 'theme-cool', 'theme-night', 'theme-forest', 'theme-sunset'];
 
         // ============================================
         // ÉTAT - Objet centralisé
         // ============================================
         
         const AppState = {
-            currentHouse: null,
-            currentRoom: null,
+            currentLocation: null,
+            currentDevice: null,
             currentSensor: null,
             
             save() {
                 return {
-                    house: this.currentHouse,
-                    room: this.currentRoom,
+                    location: this.currentLocation,
+                    device: this.currentDevice,
                     sensor: this.currentSensor
                 };
             },
             
             restore(saved) {
-                this.currentHouse = saved.house;
-                this.currentRoom = saved.room;
+                this.currentLocation = saved.location;
+                this.currentDevice = saved.device;
                 this.currentSensor = saved.sensor;
             }
         };
         
-        let db = null;
-        let data = { locations: {}, houses: {}, rooms: {} };
+        let data = { locations: {}, devices: {} };
         let mainChart = null;
 
         // ============================================
@@ -1076,160 +958,142 @@
         
         document.addEventListener('DOMContentLoaded', async () => {
             createParticles();
-            await initDatabase();
+            await loadAllData();
+            document.getElementById('loadingScreen').classList.add('hidden');
         });
-
-        async function initDatabase() {
-            try {
-                const SQL = await initSqlJs({
-                    locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}`
-                });
-
-                const response = await fetch(DB_PATH);
-                if (!response.ok) throw new Error(`Impossible de charger ${DB_PATH}`);
-                
-                const buffer = await response.arrayBuffer();
-                db = new SQL.Database(new Uint8Array(buffer));
-
-                await loadAllData();
-                document.getElementById('loadingScreen').classList.add('hidden');
-
-            } catch (error) {
-                console.error('Erreur:', error);
-                document.querySelector('.loading-text').innerHTML = `
-                    <div class="error-message">
-                        Erreur de chargement<br>
-                        <small>${error.message}</small><br><br>
-                        <small>Vérifiez que <code>domotique.db</code> est dans le même dossier.</small>
-                    </div>
-                `;
-                document.querySelector('.loading-spinner').style.display = 'none';
-            }
-        }
 
         // ============================================
         // CHARGEMENT DES DONNÉES
         // ============================================
         
         async function loadAllData() {
-            data = { locations: {}, houses: {}, rooms: {} };
+            try {
+                data = { locations: {}, devices: {} };
 
-            // Récupérer tous les lieux (extrait depuis le topic: "Maison1/Salon/T" -> "Maison1")
-            const locationsResult = db.exec(`
-                SELECT DISTINCT SUBSTR(topic, 1, INSTR(topic, '/') - 1) as lieu
-                FROM mesures 
-                ORDER BY lieu
-            `);
-            if (!locationsResult.length || !locationsResult[0].values.length) return;
+                // Récupérer tous les appareils avec leurs lieux
+                const { data: devices, error: devicesError } = await supabase
+                    .from('devices')
+                    .select('*');
 
-            let themeIndex = 0;
+                if (devicesError) throw devicesError;
 
-            for (const [lieu] of locationsResult[0].values) {
-                const theme = THEMES[themeIndex % THEMES.length];
-                themeIndex++;
-
-                // Récupérer les pièces de ce lieu
-                const roomsResult = db.exec(`
-                    SELECT DISTINCT piece FROM mesures 
-                    WHERE topic LIKE '${lieu}/%' 
-                    ORDER BY piece
-                `);
-
-                const rooms = [];
-                if (roomsResult.length && roomsResult[0].values.length) {
-                    for (const [piece] of roomsResult[0].values) {
-                        const roomId = `${lieu}__${piece}`;
-                        const roomData = await loadRoomData(lieu, piece, theme);
-                        data.rooms[roomId] = roomData;
-                        rooms.push(roomData);
+                // Organiser par lieu
+                const locationGroups = {};
+                
+                for (const device of devices) {
+                    const location = device.location || 'Sans lieu';
+                    
+                    if (!locationGroups[location]) {
+                        locationGroups[location] = [];
                     }
+                    locationGroups[location].push(device);
                 }
 
-                // Données agrégées du lieu
-                const tempData = rooms.find(r => r.sensors['T'])?.sensors['T'];
-                
-                data.houses[lieu] = {
-                    id: lieu,
-                    name: lieu,
+                let themeIndex = 0;
+
+                // Pour chaque lieu, charger les données des appareils
+                for (const [location, locationDevices] of Object.entries(locationGroups)) {
+                    const theme = THEMES[themeIndex % THEMES.length];
+                    themeIndex++;
+
+                    const devicesData = [];
+                    
+                    for (const device of locationDevices) {
+                        const deviceData = await loadDeviceData(device, theme);
+                        data.devices[device.device_uid] = deviceData;
+                        devicesData.push(deviceData);
+                    }
+
+                    // Calculer les stats du lieu
+                    const tempDevices = devicesData.filter(d => d.sensors['temperature']);
+                    
+                    data.locations[location] = {
+                        id: location,
+                        name: location,
+                        theme,
+                        devices: devicesData,
+                        deviceCount: devicesData.length,
+                        temperature: tempDevices.length > 0 ? {
+                            current: tempDevices[0].sensors['temperature'].current,
+                            min: Math.min(...tempDevices.map(d => d.sensors['temperature'].min)),
+                            max: Math.max(...tempDevices.map(d => d.sensors['temperature'].max))
+                        } : null
+                    };
+                }
+
+                renderLocations();
+
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                document.querySelector('.loading-text').innerHTML = `
+                    <div class="error-message">
+                        Erreur de chargement<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+                document.querySelector('.loading-spinner').style.display = 'none';
+            }
+        }
+
+        async function loadDeviceData(device, theme) {
+            const sensors = {};
+
+            // Récupérer les mesures de cet appareil
+            const { data: measurements, error } = await supabase
+                .from('measurements')
+                .select('*')
+                .eq('device_uid', device.device_uid)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                console.error('Erreur mesures:', error);
+                return {
+                    id: device.device_uid,
+                    device_uid: device.device_uid,
+                    location: device.location,
+                    device_type: device.device_type,
                     theme,
-                    rooms,
-                    roomCount: rooms.length,
-                    temperature: tempData ? {
-                        current: tempData.current,
-                        min: Math.min(...rooms.filter(r => r.sensors['T']).map(r => r.sensors['T'].min)),
-                        max: Math.max(...rooms.filter(r => r.sensors['T']).map(r => r.sensors['T'].max))
-                    } : null
+                    sensors: {},
+                    lastMeasure: device.created_at
                 };
             }
 
-            renderLocations();
-        }
-
-        async function loadRoomData(lieu, piece, theme) {
-            const roomId = `${lieu}__${piece}`;
-            const sensors = {};
-
-            // Récupérer les capteurs disponibles
-            const sensorsResult = db.exec(`
-                SELECT DISTINCT capteur FROM mesures 
-                WHERE topic LIKE '${lieu}/${piece}/%'
-            `);
-
-            if (sensorsResult.length && sensorsResult[0].values.length) {
-                for (const [capteur] of sensorsResult[0].values) {
-                    // Stats
-                    const stats = db.exec(`
-                        SELECT MIN(valeur), MAX(valeur), AVG(valeur), COUNT(*)
-                        FROM mesures 
-                        WHERE topic LIKE '${lieu}/${piece}/%' AND capteur = '${capteur}'
-                    `)[0]?.values[0] || [0, 0, 0, 0];
-
-                    // Dernière valeur
-                    const last = db.exec(`
-                        SELECT valeur, timestamp FROM mesures 
-                        WHERE topic LIKE '${lieu}/${piece}/%' AND capteur = '${capteur}'
-                        ORDER BY timestamp DESC LIMIT 1
-                    `)[0]?.values[0] || [0, ''];
-
-                    // Historique
-                    const history = db.exec(`
-                        SELECT valeur, timestamp FROM mesures 
-                        WHERE topic LIKE '${lieu}/${piece}/%' AND capteur = '${capteur}'
-                        ORDER BY timestamp ASC
-                    `)[0]?.values || [];
-
-                    sensors[capteur] = {
-                        type: capteur,
-                        config: SENSOR_CONFIG[capteur] || {
-                            name: capteur,
-                            unit: '',
-                            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`,
-                            color: '#888',
-                            class: 'unknown',
-                            getStatus: () => '',
-                            format: (v) => v.toString()
-                        },
-                        current: last[0],
-                        min: stats[0],
-                        max: stats[1],
-                        avg: stats[2],
-                        count: stats[3],
-                        lastTimestamp: last[1],
-                        history: history.map(r => ({ value: r[0], time: r[1] }))
+            // Organiser par type de capteur
+            const sensorTypes = ['temperature', 'humidity', 'luminosity'];
+            
+            for (const sensorType of sensorTypes) {
+                const sensorMeasurements = measurements.filter(m => m[sensorType] !== null);
+                
+                if (sensorMeasurements.length > 0) {
+                    const values = sensorMeasurements.map(m => m[sensorType]);
+                    const lastMeasurement = sensorMeasurements[sensorMeasurements.length - 1];
+                    
+                    sensors[sensorType] = {
+                        type: sensorType,
+                        config: SENSOR_CONFIG[sensorType],
+                        current: lastMeasurement[sensorType],
+                        min: Math.min(...values),
+                        max: Math.max(...values),
+                        avg: values.reduce((a, b) => a + b, 0) / values.length,
+                        count: values.length,
+                        lastTimestamp: lastMeasurement.created_at,
+                        history: sensorMeasurements.map(m => ({
+                            value: m[sensorType],
+                            time: m.created_at
+                        }))
                     };
                 }
             }
 
-            // Dernière mesure globale
-            const lastMeasure = db.exec(`
-                SELECT MAX(timestamp) FROM mesures 
-                WHERE topic LIKE '${lieu}/${piece}/%'
-            `)[0]?.values[0][0] || '';
+            const lastMeasure = measurements.length > 0 
+                ? measurements[measurements.length - 1].created_at 
+                : device.created_at;
 
             return {
-                id: roomId,
-                lieu,
-                piece,
+                id: device.device_uid,
+                device_uid: device.device_uid,
+                location: device.location,
+                device_type: device.device_type,
                 theme,
                 sensors,
                 lastMeasure
@@ -1237,7 +1101,7 @@
         }
 
         // ============================================
-        // RAFRAÎCHISSEMENT - Version améliorée
+        // RAFRAÎCHISSEMENT
         // ============================================
         
         function showRefreshIndicator() {
@@ -1247,42 +1111,22 @@
         }
 
         async function refreshData() {
-            // Sauvegarder l'état actuel AVANT tout
             const savedState = AppState.save();
-            
             showRefreshIndicator();
             
             try {
-                const SQL = await initSqlJs({
-                    locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}`
-                });
-                const response = await fetch(DB_PATH + '?t=' + Date.now());
-                if (!response.ok) throw new Error('Erreur lors du chargement de la base de données');
-                
-                const buffer = await response.arrayBuffer();
-                db = new SQL.Database(new Uint8Array(buffer));
-
                 await loadAllData();
-                
-                // Restaurer l'état et la vue
                 AppState.restore(savedState);
                 
-                if (AppState.currentRoom && data.rooms[AppState.currentRoom]) {
-                    // On est sur la page détails d'une pièce
-                    showRoom(AppState.currentRoom);
-                } else if (AppState.currentHouse && data.houses[AppState.currentHouse]) {
-                    // On est sur la page des pièces d'une maison
-                    showHouse(AppState.currentHouse);
-                } else {
-                    // On est sur la page d'accueil - déjà rendu par loadAllData()
+                if (AppState.currentDevice && data.devices[AppState.currentDevice]) {
+                    showRoom(AppState.currentDevice);
+                } else if (AppState.currentLocation && data.locations[AppState.currentLocation]) {
+                    showHouse(AppState.currentLocation);
                 }
                 
             } catch (error) {
                 console.error('Erreur rafraîchissement:', error);
-                
-                // Restaurer l'état même en cas d'erreur
                 AppState.restore(savedState);
-                
                 alert('Erreur lors du rafraîchissement. Veuillez réessayer.');
             }
         }
@@ -1295,16 +1139,16 @@
             const container = document.getElementById('locationsList');
             container.innerHTML = '';
 
-            Object.values(data.houses).forEach((house, index) => {
+            Object.values(data.locations).forEach((location, index) => {
                 const card = document.createElement('div');
                 card.className = `location-card`;
                 card.style.animationDelay = `${index * 0.1}s`;
-                card.onclick = () => showHouse(house.id);
+                card.onclick = () => showHouse(location.id);
 
-                const tempDisplay = house.temperature 
+                const tempDisplay = location.temperature 
                     ? `<div class="card-temp">
-                        <div class="card-temp-value">${house.temperature.current.toFixed(1)}°</div>
-                        <div class="card-temp-range">H:${house.temperature.max.toFixed(1)}° L:${house.temperature.min.toFixed(1)}°</div>
+                        <div class="card-temp-value">${location.temperature.current.toFixed(1)}°</div>
+                        <div class="card-temp-range">H:${location.temperature.max.toFixed(1)}° L:${location.temperature.min.toFixed(1)}°</div>
                        </div>`
                     : '';
 
@@ -1319,7 +1163,7 @@
                                         <polyline points="9,22 9,12 15,12 15,22"/>
                                     </svg>
                                 </div>
-                                <div class="card-title">${house.name}</div>
+                                <div class="card-title">${location.name}</div>
                                 <div class="room-count">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect x="3" y="3" width="7" height="7"/>
@@ -1327,13 +1171,13 @@
                                         <rect x="3" y="14" width="7" height="7"/>
                                         <rect x="14" y="14" width="7" height="7"/>
                                     </svg>
-                                    ${house.roomCount} pièce${house.roomCount > 1 ? 's' : ''}
+                                    ${location.deviceCount} appareil${location.deviceCount > 1 ? 's' : ''}
                                 </div>
                             </div>
                             ${tempDisplay}
                         </div>
                         <div class="card-sensors">
-                            ${renderLocationSensors(house)}
+                            ${renderLocationSensors(location)}
                         </div>
                     </div>
                 `;
@@ -1342,22 +1186,21 @@
             });
         }
 
-        function renderLocationSensors(house) {
-            // Collecter tous les capteurs uniques du lieu
+        function renderLocationSensors(location) {
             const allSensors = {};
-            house.rooms.forEach(room => {
-                Object.keys(room.sensors).forEach(type => {
+            location.devices.forEach(device => {
+                Object.keys(device.sensors).forEach(type => {
                     if (!allSensors[type]) {
                         allSensors[type] = [];
                     }
-                    allSensors[type].push(room.sensors[type].current);
+                    allSensors[type].push(device.sensors[type].current);
                 });
             });
 
             return Object.entries(allSensors)
-                .filter(([type]) => type !== 'T') // Température déjà affichée
+                .filter(([type]) => type !== 'temperature')
                 .map(([type, values]) => {
-                    const config = SENSOR_CONFIG[type] || { icon: '', class: 'unknown', unit: '', format: v => v };
+                    const config = SENSOR_CONFIG[type];
                     const avg = values.reduce((a, b) => a + b, 0) / values.length;
                     return `
                         <div class="sensor-badge ${config.class}">
@@ -1369,37 +1212,37 @@
         }
 
         // ============================================
-        // RENDU PAGE 2: PIÈCES D'UN LIEU
+        // RENDU PAGE 2: APPAREILS D'UN LIEU
         // ============================================
         
-        function showHouse(houseId) {
-            AppState.currentHouse = houseId || AppState.currentHouse;
-            const house = data.houses[AppState.currentHouse];
-            if (!house) return;
+        function showHouse(locationId) {
+            AppState.currentLocation = locationId || AppState.currentLocation;
+            const location = data.locations[AppState.currentLocation];
+            if (!location) return;
 
             document.getElementById('locationsPage').classList.add('hidden');
             document.getElementById('housePage').classList.remove('hidden');
             document.getElementById('roomPage').classList.add('hidden');
 
-            document.getElementById('houseTitle').textContent = house.name;
-            document.getElementById('houseSubtitle').textContent = `${house.roomCount} pièce${house.roomCount > 1 ? 's' : ''}`;
+            document.getElementById('houseTitle').textContent = location.name;
+            document.getElementById('houseSubtitle').textContent = `${location.deviceCount} appareil${location.deviceCount > 1 ? 's' : ''}`;
 
-            renderRooms(house);
+            renderDevices(location);
             window.scrollTo(0, 0);
         }
 
-        function renderRooms(house) {
+        function renderDevices(location) {
             const container = document.getElementById('roomsList');
             container.innerHTML = '';
 
-            house.rooms.forEach((room, index) => {
-                const roomConfig = getRoomConfig(room.piece);
+            location.devices.forEach((device, index) => {
+                const deviceConfig = getDeviceConfig(device.device_type);
                 const card = document.createElement('div');
                 card.className = `room-card`;
                 card.style.animationDelay = `${index * 0.1}s`;
-                card.onclick = () => showRoom(room.id);
+                card.onclick = () => showRoom(device.device_uid);
 
-                const tempSensor = room.sensors['T'];
+                const tempSensor = device.sensors['temperature'];
                 const tempDisplay = tempSensor 
                     ? `<div class="card-temp">
                         <div class="card-temp-value">${tempSensor.config.format(tempSensor.current)}°</div>
@@ -1410,20 +1253,20 @@
                 const status = tempSensor ? tempSensor.config.getStatus(tempSensor.current) : '';
 
                 card.innerHTML = `
-                    <div class="card-bg" style="background: ${roomConfig.gradient}"></div>
+                    <div class="card-bg" style="background: ${deviceConfig.gradient}"></div>
                     <div class="card-content">
                         <div class="card-header">
                             <div>
-                                <div class="room-icon" style="background: ${roomConfig.color}30; border: 1px solid ${roomConfig.color}50;">
-                                    ${roomConfig.icon}
+                                <div class="room-icon">
+                                    ${deviceConfig.icon}
                                 </div>
-                                <div class="card-title">${room.piece}</div>
-                                <div class="card-detail">${status}</div>
+                                <div class="card-title">${device.device_uid}</div>
+                                <div class="card-detail">${status || device.device_type}</div>
                             </div>
                             ${tempDisplay}
                         </div>
                         <div class="card-sensors">
-                            ${renderRoomSensors(room)}
+                            ${renderDeviceSensors(device)}
                         </div>
                     </div>
                 `;
@@ -1432,9 +1275,9 @@
             });
         }
 
-        function renderRoomSensors(room) {
-            return Object.entries(room.sensors)
-                .filter(([type]) => type !== 'T')
+        function renderDeviceSensors(device) {
+            return Object.entries(device.sensors)
+                .filter(([type]) => type !== 'temperature')
                 .map(([type, sensor]) => {
                     return `
                         <div class="sensor-badge ${sensor.config.class}">
@@ -1446,21 +1289,19 @@
         }
 
         // ============================================
-        // RENDU PAGE 3: DÉTAILS PIÈCE
+        // RENDU PAGE 3: DÉTAILS APPAREIL
         // ============================================
         
-        function showRoom(roomId) {
-            AppState.currentRoom = roomId;
-            const room = data.rooms[roomId];
-            if (!room) return;
+        function showRoom(deviceId) {
+            AppState.currentDevice = deviceId;
+            const device = data.devices[deviceId];
+            if (!device) return;
 
-            // Récupérer la config de la pièce
-            const roomConfig = getRoomConfig(room.piece);
+            const deviceConfig = getDeviceConfig(device.device_type);
 
-            // Sélectionner le capteur actuel ou le premier par défaut
-            const sensorTypes = Object.keys(room.sensors);
-            if (!AppState.currentSensor || !room.sensors[AppState.currentSensor]) {
-                AppState.currentSensor = sensorTypes.includes('T') ? 'T' : sensorTypes[0];
+            const sensorTypes = Object.keys(device.sensors);
+            if (!AppState.currentSensor || !device.sensors[AppState.currentSensor]) {
+                AppState.currentSensor = sensorTypes.includes('temperature') ? 'temperature' : sensorTypes[0];
             }
 
             document.getElementById('locationsPage').classList.add('hidden');
@@ -1468,28 +1309,23 @@
             document.getElementById('roomPage').classList.remove('hidden');
             document.getElementById('particles').classList.add('visible');
 
-            // Thème basé sur la couleur de la pièce
-            document.getElementById('detailsBg').style.background = `linear-gradient(180deg, #0a0a0f 0%, ${roomConfig.color}15 50%, ${roomConfig.color}25 100%)`;
+            document.getElementById('detailsBg').style.background = `linear-gradient(180deg, #0a0a0f 0%, ${deviceConfig.color}15 50%, ${deviceConfig.color}25 100%)`;
 
-            // Header
-            document.getElementById('backToHouseName').textContent = room.lieu;
-            document.getElementById('roomLocation').textContent = room.lieu;
-            document.getElementById('roomName').textContent = room.piece;
+            document.getElementById('backToHouseName').textContent = device.location;
+            document.getElementById('roomLocation').textContent = device.location;
+            document.getElementById('roomName').textContent = device.device_uid;
 
-            // Grille des capteurs
-            renderSensorsGrid(room);
-
-            // Afficher les données du capteur sélectionné
-            updateSensorDisplay(room);
+            renderSensorsGrid(device);
+            updateSensorDisplay(device);
 
             window.scrollTo(0, 0);
         }
 
-        function renderSensorsGrid(room) {
+        function renderSensorsGrid(device) {
             const container = document.getElementById('sensorsGrid');
             container.innerHTML = '';
 
-            Object.entries(room.sensors).forEach(([type, sensor]) => {
+            Object.entries(device.sensors).forEach(([type, sensor]) => {
                 const card = document.createElement('div');
                 card.className = `sensor-card ${sensor.config.class} ${type === AppState.currentSensor ? 'active' : ''}`;
                 card.onclick = () => selectSensor(type);
@@ -1506,21 +1342,19 @@
 
         function selectSensor(type) {
             AppState.currentSensor = type;
-            const room = data.rooms[AppState.currentRoom];
+            const device = data.devices[AppState.currentDevice];
             
-            // Mettre à jour les cartes actives
             document.querySelectorAll('.sensor-card').forEach(card => {
                 card.classList.toggle('active', card.classList.contains(SENSOR_CONFIG[type]?.class));
             });
 
-            updateSensorDisplay(room);
+            updateSensorDisplay(device);
         }
 
-        function updateSensorDisplay(room) {
-            const sensor = room.sensors[AppState.currentSensor];
+        function updateSensorDisplay(device) {
+            const sensor = device.sensors[AppState.currentSensor];
             if (!sensor) return;
 
-            // Valeur principale
             document.getElementById('mainValue').textContent = 
                 sensor.config.format(sensor.current) + sensor.config.unit;
             document.getElementById('mainStatus').textContent = 
@@ -1530,14 +1364,10 @@
             document.getElementById('mainLow').textContent = 
                 'Min: ' + sensor.config.format(sensor.min) + sensor.config.unit;
 
-            // Statistiques
             renderStats(sensor);
-
-            // Graphique - Version optimisée
             updateChart(sensor);
 
-            // Dernière mise à jour
-            document.getElementById('lastUpdate').textContent = formatDateTime(room.lastMeasure);
+            document.getElementById('lastUpdate').textContent = formatDateTime(device.lastMeasure);
         }
 
         function renderStats(sensor) {
@@ -1563,7 +1393,6 @@
             `;
         }
 
-        // Version optimisée du graphique qui ne détruit/recrée pas à chaque fois
         function updateChart(sensor) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             
@@ -1571,7 +1400,6 @@
             const values = sensor.history.map(h => h.value);
 
             if (mainChart) {
-                // Mettre à jour les données existantes
                 mainChart.data.labels = labels;
                 mainChart.data.datasets[0].data = values;
                 mainChart.data.datasets[0].borderColor = sensor.config.color;
@@ -1580,9 +1408,8 @@
                 mainChart.data.datasets[0].pointHoverBackgroundColor = sensor.config.color;
                 mainChart.options.scales.y.ticks.callback = (v) => sensor.config.format(v) + sensor.config.unit;
                 mainChart.options.plugins.tooltip.callbacks.label = (ctx) => `${sensor.config.format(ctx.raw)}${sensor.config.unit}`;
-                mainChart.update('none'); // 'none' = pas d'animation pour être plus rapide
+                mainChart.update('none');
             } else {
-                // Créer le graphique seulement la première fois
                 mainChart = new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -1646,15 +1473,15 @@
             document.getElementById('housePage').classList.add('hidden');
             document.getElementById('roomPage').classList.add('hidden');
             document.getElementById('particles').classList.remove('visible');
-            AppState.currentHouse = null;
-            AppState.currentRoom = null;
+            AppState.currentLocation = null;
+            AppState.currentDevice = null;
             if (mainChart) { mainChart.destroy(); mainChart = null; }
         }
 
-        function showHouseFromRoom() {
-            showHouse(AppState.currentHouse);
+        function showHouse() {
+            showHouse(AppState.currentLocation);
             document.getElementById('particles').classList.remove('visible');
-            AppState.currentRoom = null;
+            AppState.currentDevice = null;
             if (mainChart) { mainChart.destroy(); mainChart = null; }
         }
 
