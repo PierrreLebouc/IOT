@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Domotique</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Chargement des données...</div>
+    </div>
+
+    <div class="refresh-indicator" id="refreshIndicator">
+        <div class="spinner"></div>
+        <span>Actualisation...</span>
+    </div>
+
+    <!-- PAGE 1: PIÈCES -->
+    <div class="page" id="roomsPage">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title">Domotique</h1>
+                <p class="page-subtitle">Sélectionnez une pièce</p>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="refreshData()" aria-label="Rafraîchir">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+                        <path d="M21 3v5h-5"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <div class="cards-grid" id="roomsList"></div>
+    </div>
+
+    <!-- PAGE 2: DÉTAILS -->
+    <div class="page hidden" id="detailPage">
+        <div class="details-bg" id="detailsBg"></div>
+        <div class="bg-particles" id="particles"></div>
+        <header class="page-header" style="max-width: 700px;">
+            <button class="back-btn" onclick="showRooms()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+                Pièces
+            </button>
+        </header>
+        <div class="main-display">
+            <h1 class="main-location" id="roomTitle">--</h1>
+            <div class="main-value" id="mainValue">--</div>
+            <div class="main-status" id="mainStatus">--</div>
+            <div class="main-range">
+                <span class="high" id="mainHigh">Max: --</span>
+                <span style="margin: 0 16px; opacity: 0.3;">|</span>
+                <span class="low" id="mainLow">Min: --</span>
+            </div>
+        </div>
+        <div class="details-content">
+            <div class="sensors-grid" id="sensorsGrid"></div>
+            <div class="section-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                </svg>
+                <span>Historique</span>
+            </div>
+            <div class="glass-card chart-card">
+                <div class="chart-container"><canvas id="mainChart"></canvas></div>
+            </div>
+            <div class="section-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v18h18"/><path d="m18 9-5 5-4-4-6 6"/>
+                </svg>
+                <span>Statistiques</span>
+            </div>
+            <div class="glass-card">
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+            <div class="last-update">Dernière mesure : <span id="lastUpdate">--</span></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
