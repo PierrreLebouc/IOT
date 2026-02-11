@@ -18,16 +18,12 @@
             --accent-temp: #ff6b6b;
             --accent-lux: #ffd93d;
             --accent-humidity: #4ecdc4;
-            --accent-air: #a29bfe;
+            --accent-water: #a29bfe;
             --card-radius: 20px;
             --transition-smooth: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
@@ -37,703 +33,227 @@
             overflow-x: hidden;
         }
 
-        /* ==========================================
-           LOADING
-        ========================================== */
+        /* LOADING */
         .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-dark);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-dark); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 1000;
             transition: opacity 0.5s ease;
         }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
+        .loading-screen.hidden { opacity: 0; pointer-events: none; }
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--glass-border);
-            border-top-color: var(--text-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            width: 50px; height: 50px; border: 3px solid var(--glass-border);
+            border-top-color: var(--text-primary); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
         }
-
         @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--text-secondary); font-size: 1rem; }
+        .error-message { color: var(--accent-temp); text-align: center; padding: 20px; line-height: 1.6; }
 
-        .loading-text {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-
-        .error-message {
-            color: var(--accent-temp);
-            text-align: center;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        /* ==========================================
-           INDICATEUR DE RAFRAÎCHISSEMENT
-        ========================================== */
+        /* REFRESH */
         .refresh-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 18px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(255, 255, 255, 0.1); padding: 10px 18px;
+            border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary);
+            backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+            opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
+            display: flex; align-items: center; gap: 8px;
         }
-
-        .refresh-indicator.visible {
-            opacity: 1;
-        }
-
+        .refresh-indicator.visible { opacity: 1; }
         .refresh-indicator .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--glass-border);
-            border-top-color: var(--text-primary);
-            border-radius: 50%;
+            width: 16px; height: 16px; border: 2px solid var(--glass-border);
+            border-top-color: var(--text-primary); border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
-        /* ==========================================
-           PAGE COMMUNE
-        ========================================== */
+        /* PAGES */
         .page {
-            min-height: 100vh;
-            padding: 60px 20px 40px;
+            min-height: 100vh; padding: 60px 20px 40px;
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
-
         .page.hidden {
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
+            opacity: 0; transform: scale(0.95); pointer-events: none;
+            position: absolute; width: 100%; top: 0; left: 0;
         }
-
         .page-header {
-            max-width: 800px;
-            margin: 0 auto 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            max-width: 800px; margin: 0 auto 40px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .page-subtitle {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 12px;
-        }
-
+        .page-title { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+        .page-subtitle { font-size: 1rem; color: var(--text-secondary); margin-top: 4px; }
+        .header-actions { display: flex; gap: 12px; }
         .icon-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--glass-bg);
-            border: none;
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--glass-bg); border: none; color: var(--text-primary);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: var(--transition-smooth);
         }
-
-        .icon-btn:hover {
-            background: var(--glass-bg-hover);
-            transform: scale(1.05);
-        }
-
-        .icon-btn svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        /* Back button */
+        .icon-btn:hover { background: var(--glass-bg-hover); transform: scale(1.05); }
+        .icon-btn svg { width: 20px; height: 20px; }
         .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1rem;
-            cursor: pointer;
-            padding: 10px 14px;
-            margin-left: -14px;
-            border-radius: 12px;
-            transition: var(--transition-smooth);
+            display: flex; align-items: center; gap: 6px;
+            background: none; border: none; color: var(--text-primary);
+            font-size: 1rem; cursor: pointer; padding: 10px 14px;
+            margin-left: -14px; border-radius: 12px; transition: var(--transition-smooth);
         }
-
         .back-btn:hover { background: var(--glass-bg); }
         .back-btn svg { width: 22px; height: 22px; }
 
-        /* ==========================================
-           CARTES LIEUX
-        ========================================== */
+        /* CARDS */
         .cards-grid {
-            max-width: 800px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
+            max-width: 800px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
         }
-
-        .location-card, .room-card {
-            position: relative;
-            border-radius: var(--card-radius);
-            overflow: hidden;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            min-height: 160px;
-            animation: slideUp 0.5s ease both;
+        .room-card {
+            position: relative; border-radius: var(--card-radius);
+            overflow: hidden; cursor: pointer; transition: var(--transition-smooth);
+            min-height: 160px; animation: slideUp 0.5s ease both;
         }
-
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .location-card:hover, .room-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        }
-
-        .location-card:active, .room-card:active {
-            transform: scale(0.98);
-        }
-
+        .room-card:hover { transform: scale(1.02); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); }
+        .room-card:active { transform: scale(0.98); }
         .card-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; transition: background 0.3s ease;
         }
-
-        /* Style clair pour les cartes de lieux */
-        .location-card .card-bg {
-            background: linear-gradient(135deg, #e8f4f8 0%, #d4e8ed 50%, #c5dfe6 100%) !important;
-        }
-
-        .location-card .card-title,
-        .location-card .card-temp-value {
-            color: #1a3a4a;
-        }
-
-        .location-card .card-detail,
-        .location-card .room-count,
-        .location-card .card-temp-range {
-            color: #4a6a7a;
-        }
-
-        .location-card .room-count svg {
-            color: #4a6a7a;
-        }
-
-        .location-card .card-sensors {
-            border-top-color: rgba(0, 0, 0, 0.08);
-        }
-
-        .location-card .sensor-badge {
-            color: #4a6a7a;
-        }
-
-        .location-card .sensor-badge .value {
-            color: #1a3a4a;
-        }
-
-        .location-card .location-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, #3d8baa 0%, #2a6a8a 100%);
-            box-shadow: 0 4px 12px rgba(45, 120, 150, 0.3);
-        }
-
-        .location-card .location-icon svg {
-            width: 28px;
-            height: 28px;
-            color: white;
-        }
-
-        /* Room card avec style dynamique */
-        .room-card .card-bg {
-            transition: background 0.3s ease;
-        }
-
         .room-card .room-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
             margin-bottom: 12px;
-            background: rgba(255, 255, 255, 0.15);
         }
-
-        .room-card .room-icon svg {
-            width: 28px;
-            height: 28px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
+        .room-card .room-icon svg { width: 28px; height: 28px; color: rgba(255, 255, 255, 0.9); }
         .card-content {
-            position: relative;
-            z-index: 1;
-            padding: 24px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+            position: relative; z-index: 1; padding: 24px;
+            height: 100%; display: flex; flex-direction: column;
         }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .card-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-        }
-
-        .card-detail {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
-
-        .card-temp {
-            text-align: right;
-        }
-
-        .card-temp-value {
-            font-size: 2.8rem;
-            font-weight: 300;
-            letter-spacing: -2px;
-            line-height: 1;
-        }
-
-        .card-temp-range {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .card-title { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.3px; }
+        .card-detail { font-size: 0.9rem; color: var(--text-secondary); margin-top: 2px; }
+        .card-temp { text-align: right; }
+        .card-temp-value { font-size: 2.8rem; font-weight: 300; letter-spacing: -2px; line-height: 1; }
+        .card-temp-range { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
         .card-sensors {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-top: auto;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; flex-wrap: wrap; gap: 16px; margin-top: auto;
+            padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
-
-        .sensor-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .sensor-badge svg {
-            width: 16px;
-            height: 16px;
-            opacity: 0.8;
-        }
-
-        .sensor-badge .value {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
+        .sensor-badge { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-secondary); }
+        .sensor-badge svg { width: 16px; height: 16px; opacity: 0.8; }
+        .sensor-badge .value { color: var(--text-primary); font-weight: 500; }
         .sensor-badge.temp svg { color: var(--accent-temp); }
         .sensor-badge.lux svg { color: var(--accent-lux); }
         .sensor-badge.humidity svg { color: var(--accent-humidity); }
-        .sensor-badge.air svg { color: var(--accent-air); }
+        .sensor-badge.water svg { color: var(--accent-water); }
 
-        /* Compteur de pièces */
-        .room-count {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-
-        .room-count svg {
-            width: 16px;
-            height: 16px;
-            opacity: 0.7;
-        }
-
-        /* ==========================================
-           PAGE DÉTAILS PIÈCE
-        ========================================== */
+        /* DETAIL PAGE */
         .details-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            transition: background 0.8s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; transition: background 0.8s ease;
         }
-
-        /* Particles */
         .bg-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.5s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; overflow: hidden; z-index: -1;
+            opacity: 0; transition: opacity 0.5s ease;
         }
-
         .bg-particles.visible { opacity: 1; }
-
         .particle {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
+            position: absolute; width: 3px; height: 3px;
+            background: rgba(255, 255, 255, 0.15); border-radius: 50%;
             animation: float 20s infinite ease-in-out;
         }
-
         @keyframes float {
             0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
+            10% { opacity: 0.6; } 90% { opacity: 0.6; }
             100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
         }
-
-        /* Main display */
-        .main-display {
-            text-align: center;
-            padding: 20px 0 50px;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .main-location {
-            font-size: 2.2rem;
-            font-weight: 600;
-            letter-spacing: -0.5px;
-        }
-
-        .main-room {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
+        .main-display { text-align: center; padding: 20px 0 50px; max-width: 700px; margin: 0 auto; }
+        .main-location { font-size: 2.2rem; font-weight: 600; letter-spacing: -0.5px; }
         .main-value {
-            font-size: 7rem;
-            font-weight: 200;
-            letter-spacing: -8px;
-            line-height: 1;
-            margin: 16px 0;
+            font-size: 7rem; font-weight: 200; letter-spacing: -8px; line-height: 1; margin: 16px 0;
             background: linear-gradient(180deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-
-        .main-status {
-            font-size: 1.4rem;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .main-range {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-        }
-
+        .main-status { font-size: 1.4rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .main-range { font-size: 1.2rem; color: var(--text-secondary); }
         .main-range .high { color: var(--accent-temp); }
         .main-range .low { color: var(--accent-humidity); }
-
-        /* Content container */
-        .details-content {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 0 20px 60px;
-        }
-
-        /* Section header */
+        .details-content { max-width: 700px; margin: 0 auto; padding: 0 20px 60px; }
         .section-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 32px 0 12px;
-            padding: 0 4px;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--text-secondary); font-size: 0.8rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.5px; margin: 32px 0 12px; padding: 0 4px;
         }
-
-        .section-header svg {
-            width: 16px;
-            height: 16px;
-            opacity: 0.7;
-        }
-
-        /* Glass cards */
+        .section-header svg { width: 16px; height: 16px; opacity: 0.7; }
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
-            margin-bottom: 16px;
-            animation: fadeIn 0.6s ease both;
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius); margin-bottom: 16px; animation: fadeIn 0.6s ease both;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Sensor cards grid */
         .sensors-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            margin-bottom: 24px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px; margin-bottom: 24px;
         }
-
         .sensor-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition-smooth);
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            padding: 20px; text-align: center; cursor: pointer; transition: var(--transition-smooth);
         }
-
-        .sensor-card:hover {
-            background: var(--glass-bg-hover);
-            transform: translateY(-2px);
-        }
-
-        .sensor-card.active {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
+        .sensor-card:hover { background: var(--glass-bg-hover); transform: translateY(-2px); }
+        .sensor-card.active { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.3); }
         .sensor-card-icon {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto 12px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 40px; height: 40px; margin: 0 auto 12px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
         }
-
-        .sensor-card-icon svg {
-            width: 24px;
-            height: 24px;
-        }
-
+        .sensor-card-icon svg { width: 24px; height: 24px; }
         .sensor-card.temp .sensor-card-icon { background: rgba(255, 107, 107, 0.2); color: var(--accent-temp); }
         .sensor-card.lux .sensor-card-icon { background: rgba(255, 217, 61, 0.2); color: var(--accent-lux); }
         .sensor-card.humidity .sensor-card-icon { background: rgba(78, 205, 196, 0.2); color: var(--accent-humidity); }
-        .sensor-card.air .sensor-card-icon { background: rgba(162, 155, 254, 0.2); color: var(--accent-air); }
-
-        .sensor-card-value {
-            font-size: 1.8rem;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .sensor-card-label {
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        /* Chart */
+        .sensor-card.water .sensor-card-icon { background: rgba(162, 155, 254, 0.2); color: var(--accent-water); }
+        .sensor-card-value { font-size: 1.8rem; font-weight: 500; margin-bottom: 4px; }
+        .sensor-card-label { font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.3px; }
         .chart-card { padding: 20px; }
         .chart-container { height: 220px; }
-
-        /* Stats grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .stat-item {
-            padding: 20px;
-            border-bottom: 1px solid var(--glass-border);
-            border-right: 1px solid var(--glass-border);
-        }
-
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+        .stat-item { padding: 20px; border-bottom: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); }
         .stat-item:nth-child(even) { border-right: none; }
         .stat-item:nth-last-child(-n+2) { border-bottom: none; }
+        .stat-label { font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
+        .stat-value { font-size: 1.6rem; font-weight: 400; }
+        .stat-detail { font-size: 0.85rem; color: var(--text-tertiary); margin-top: 4px; }
+        .last-update { text-align: center; padding: 24px; color: var(--text-tertiary); font-size: 0.85rem; }
 
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-size: 1.6rem;
-            font-weight: 400;
-        }
-
-        .stat-detail {
-            font-size: 0.85rem;
-            color: var(--text-tertiary);
-            margin-top: 4px;
-        }
-
-        /* Last update */
-        .last-update {
-            text-align: center;
-            padding: 24px;
-            color: var(--text-tertiary);
-            font-size: 0.85rem;
-        }
-
-        /* ==========================================
-           RESPONSIVE
-        ========================================== */
         @media (max-width: 600px) {
-            .main-value {
-                font-size: 5rem;
-                letter-spacing: -5px;
-            }
-
-            .card-temp-value {
-                font-size: 2.2rem;
-            }
-
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .sensors-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .sensor-card-value {
-                font-size: 1.4rem;
-            }
+            .main-value { font-size: 5rem; letter-spacing: -5px; }
+            .card-temp-value { font-size: 2.2rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .sensors-grid { grid-template-columns: repeat(2, 1fr); }
+            .sensor-card-value { font-size: 1.4rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-spinner"></div>
         <div class="loading-text">Chargement des données...</div>
     </div>
 
-    <!-- Indicateur de rafraîchissement -->
     <div class="refresh-indicator" id="refreshIndicator">
         <div class="spinner"></div>
         <span>Actualisation...</span>
     </div>
 
-    <!-- ==========================================
-         PAGE 1: SÉLECTION DES LIEUX
-    ========================================== -->
-    <div class="page" id="locationsPage">
+    <!-- PAGE 1: PIÈCES -->
+    <div class="page" id="roomsPage">
         <header class="page-header">
             <div>
                 <h1 class="page-title">Domotique</h1>
-                <p class="page-subtitle">Sélectionnez un lieu</p>
-            </div>
-            <div class="header-actions">
-                <button class="icon-btn" onclick="refreshData()" aria-label="Rafraîchir">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
-                        <path d="M21 3v5h-5"/>
-                    </svg>
-                </button>
-            </div>
-        </header>
-        <div class="cards-grid" id="locationsList"></div>
-    </div>
-
-    <!-- ==========================================
-         PAGE 2: DASHBOARD APPAREILS D'UN LIEU
-    ========================================== -->
-    <div class="page hidden" id="housePage">
-        <header class="page-header">
-            <div>
-                <button class="back-btn" onclick="showLocations()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="m15 18-6-6 6-6"/>
-                    </svg>
-                    Lieux
-                </button>
-                <h1 class="page-title" id="houseTitle">--</h1>
-                <p class="page-subtitle" id="houseSubtitle">-- appareils</p>
+                <p class="page-subtitle">Sélectionnez une pièce</p>
             </div>
             <div class="header-actions">
                 <button class="icon-btn" onclick="refreshData()" aria-label="Rafraîchir">
@@ -747,27 +267,20 @@
         <div class="cards-grid" id="roomsList"></div>
     </div>
 
-    <!-- ==========================================
-         PAGE 3: DÉTAILS D'UN APPAREIL
-    ========================================== -->
-    <div class="page hidden" id="roomPage">
+    <!-- PAGE 2: DÉTAILS -->
+    <div class="page hidden" id="detailPage">
         <div class="details-bg" id="detailsBg"></div>
         <div class="bg-particles" id="particles"></div>
-
         <header class="page-header" style="max-width: 700px;">
-            <div>
-                <button class="back-btn" onclick="showHouse()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="m15 18-6-6 6-6"/>
-                    </svg>
-                    <span id="backToHouseName">Retour</span>
-                </button>
-            </div>
+            <button class="back-btn" onclick="showRooms()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+                Pièces
+            </button>
         </header>
-
         <div class="main-display">
-            <h1 class="main-location" id="roomLocation">--</h1>
-            <p class="main-room" id="roomName">--</p>
+            <h1 class="main-location" id="roomTitle">--</h1>
             <div class="main-value" id="mainValue">--</div>
             <div class="main-status" id="mainStatus">--</div>
             <div class="main-range">
@@ -776,603 +289,311 @@
                 <span class="low" id="mainLow">Min: --</span>
             </div>
         </div>
-
         <div class="details-content">
-            <!-- Capteurs disponibles -->
             <div class="sensors-grid" id="sensorsGrid"></div>
-
-            <!-- Graphique -->
-            <div class="section-header" id="chartHeader">
+            <div class="section-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
                 </svg>
                 <span>Historique</span>
             </div>
             <div class="glass-card chart-card">
-                <div class="chart-container">
-                    <canvas id="mainChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="mainChart"></canvas></div>
             </div>
-
-            <!-- Statistiques -->
             <div class="section-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 3v18h18"/>
-                    <path d="m18 9-5 5-4-4-6 6"/>
+                    <path d="M3 3v18h18"/><path d="m18 9-5 5-4-4-6 6"/>
                 </svg>
                 <span>Statistiques</span>
             </div>
             <div class="glass-card">
                 <div class="stats-grid" id="statsGrid"></div>
             </div>
-
-            <!-- Dernière mise à jour -->
-            <div class="last-update">
-                Dernière mesure : <span id="lastUpdate">--</span>
-            </div>
+            <div class="last-update">Dernière mesure : <span id="lastUpdate">--</span></div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // CONFIGURATION SUPABASE
+        // SUPABASE
         // ============================================
-        
         const SUPABASE_URL = 'https://wjigmyipcrbdunxgbtut.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaWdteWlwY3JiZHVueGdidHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg2NjIzODYsImV4cCI6MjA1NDIzODM4Nn0.sb_publishable_7XCTWEKGWCpyFOOLUF34Kg_ej83d_Fa';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const SUPABASE_KEY = 'sb_publishable_7XCTWEKGWCpyFOOLUF34Kg_ej83d_Fa';
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Configuration des capteurs
+        // ============================================
+        // CONFIG CAPTEURS (clés = champ "capteur" en base)
+        // ============================================
         const SENSOR_CONFIG = {
-            'temperature': {
-                name: 'Température',
-                unit: '°C',
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-                </svg>`,
-                color: '#ff6b6b',
-                class: 'temp',
-                getStatus: (val) => {
-                    if (val < 16) return 'Froid';
-                    if (val < 18) return 'Frais';
-                    if (val <= 24) return 'Confortable';
-                    if (val <= 26) return 'Chaud';
-                    return 'Très chaud';
-                },
-                format: (val) => val ? val.toFixed(1) : '0.0'
+            'T': {
+                name: 'Température', unit: '°C', color: '#ff6b6b', class: 'temp',
+                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>`,
+                getStatus: v => v < 16 ? 'Froid' : v < 18 ? 'Frais' : v <= 24 ? 'Confortable' : v <= 26 ? 'Chaud' : 'Très chaud',
+                format: v => Number(v).toFixed(1)
             },
-            'luminosity': {
-                name: 'Luminosité',
-                unit: ' lux',
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="5"/>
-                    <line x1="12" y1="1" x2="12" y2="3"/>
-                    <line x1="12" y1="21" x2="12" y2="23"/>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                    <line x1="1" y1="12" x2="3" y2="12"/>
-                    <line x1="21" y1="12" x2="23" y2="12"/>
-                </svg>`,
-                color: '#ffd93d',
-                class: 'lux',
-                getStatus: (val) => {
-                    if (val < 100) return 'Sombre';
-                    if (val < 300) return 'Faible éclairage';
-                    if (val < 500) return 'Éclairage modéré';
-                    if (val < 800) return 'Bonne luminosité';
-                    return 'Très lumineux';
-                },
-                format: (val) => val ? Math.round(val).toString() : '0'
+            'H': {
+                name: 'Humidité', unit: '%', color: '#4ecdc4', class: 'humidity',
+                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+                getStatus: v => v < 30 ? 'Air sec' : v < 40 ? 'Légèrement sec' : v <= 60 ? 'Confortable' : v <= 70 ? 'Humide' : 'Très humide',
+                format: v => Math.round(Number(v)).toString()
             },
-            'humidity': {
-                name: 'Humidité',
-                unit: '%',
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-                </svg>`,
-                color: '#4ecdc4',
-                class: 'humidity',
-                getStatus: (val) => {
-                    if (val < 30) return 'Air sec';
-                    if (val < 40) return 'Légèrement sec';
-                    if (val <= 60) return 'Confortable';
-                    if (val <= 70) return 'Humide';
-                    return 'Très humide';
-                },
-                format: (val) => val ? Math.round(val).toString() : '0'
+            'L': {
+                name: 'Luminosité', unit: ' lux', color: '#ffd93d', class: 'lux',
+                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>`,
+                getStatus: v => v < 100 ? 'Sombre' : v < 300 ? 'Faible éclairage' : v < 500 ? 'Modéré' : v < 800 ? 'Bonne luminosité' : 'Très lumineux',
+                format: v => Math.round(Number(v)).toString()
+            },
+            'E': {
+                name: "Niveau d'eau", unit: '%', color: '#a29bfe', class: 'water',
+                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/><line x1="7" y1="13" x2="17" y2="13"/></svg>`,
+                getStatus: v => v < 20 ? 'Critique' : v < 40 ? 'Bas' : v <= 70 ? 'Normal' : v <= 90 ? 'Haut' : 'Plein',
+                format: v => Math.round(Number(v)).toString()
             }
         };
 
-        // Configuration des types d'appareils
-        const DEVICE_CONFIG = {
-            'temperature_sensor': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-                </svg>`,
+        // ============================================
+        // CONFIG PIÈCES
+        // ============================================
+        const ROOM_CONFIG = {
+            'Salon': {
+                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 10V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M4 10v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M2 10h20"/><path d="M7 19v2M17 19v2"/></svg>`,
                 color: '#e17055',
                 gradient: 'linear-gradient(135deg, #2d1f1f 0%, #4a2c2c 30%, #e17055 150%)'
             },
-            'humidity_sensor': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-                </svg>`,
-                color: '#74b9ff',
-                gradient: 'linear-gradient(135deg, #1f2a2d 0%, #2c3d4a 30%, #74b9ff 150%)'
-            },
-            'light_sensor': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="5"/>
-                    <line x1="12" y1="1" x2="12" y2="3"/>
-                    <line x1="12" y1="21" x2="12" y2="23"/>
-                </svg>`,
+            'Cuisine': {
+                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2v6a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V2"/><path d="M9 2v8"/><path d="M9 11v11"/><path d="M18 2v4a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2V2"/><path d="M16 8v14"/></svg>`,
                 color: '#fdcb6e',
                 gradient: 'linear-gradient(135deg, #2d2a1f 0%, #4a432c 30%, #fdcb6e 150%)'
             },
+            'Serre': {
+                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 10a4 4 0 0 0-4 4"/><path d="M12 10a4 4 0 0 1 4 4"/><path d="M12 2v8"/><path d="M12 14v8"/><path d="M5 20c2-2 4-3 7-3s5 1 7 3"/></svg>`,
+                color: '#55a86b',
+                gradient: 'linear-gradient(135deg, #1a2f1a 0%, #2d4a2d 30%, #55a86b 150%)'
+            },
             'default': {
-                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="4" width="20" height="12" rx="2"/>
-                    <path d="M8 20h8M12 16v4"/>
-                </svg>`,
+                icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>`,
                 color: '#b2bec3',
                 gradient: 'linear-gradient(135deg, #1f2020 0%, #3d4142 30%, #b2bec3 150%)'
             }
         };
 
-        function getDeviceConfig(deviceType) {
-            return DEVICE_CONFIG[deviceType] || DEVICE_CONFIG['default'];
+        function getRoomConfig(name) {
+            const n = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            for (const [key, config] of Object.entries(ROOM_CONFIG)) {
+                if (key === 'default') continue;
+                const k = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (n.includes(k) || k.includes(n)) return config;
+            }
+            return ROOM_CONFIG['default'];
         }
 
-        const THEMES = ['theme-warm', 'theme-cool', 'theme-night', 'theme-forest', 'theme-sunset'];
-
         // ============================================
-        // ÉTAT - Objet centralisé
+        // ÉTAT
         // ============================================
-        
-        const AppState = {
-            currentLocation: null,
-            currentDevice: null,
-            currentSensor: null,
-            
-            save() {
-                return {
-                    location: this.currentLocation,
-                    device: this.currentDevice,
-                    sensor: this.currentSensor
-                };
-            },
-            
-            restore(saved) {
-                this.currentLocation = saved.location;
-                this.currentDevice = saved.device;
-                this.currentSensor = saved.sensor;
-            }
-        };
-        
-        let data = { locations: {}, devices: {} };
+        const AppState = { currentRoom: null, currentSensor: null };
+        let data = { rooms: {} };
         let mainChart = null;
 
         // ============================================
-        // INITIALISATION
+        // INIT
         // ============================================
-        
         document.addEventListener('DOMContentLoaded', async () => {
             createParticles();
-            await loadAllData();
-            document.getElementById('loadingScreen').classList.add('hidden');
+            try {
+                await loadAllData();
+                document.getElementById('loadingScreen').classList.add('hidden');
+            } catch (err) {
+                console.error(err);
+                document.querySelector('.loading-text').innerHTML =
+                    `<div class="error-message">Erreur de chargement<br><small>${err.message}</small></div>`;
+                document.querySelector('.loading-spinner').style.display = 'none';
+            }
         });
 
         // ============================================
-        // CHARGEMENT DES DONNÉES
+        // CHARGEMENT DEPUIS SUPABASE (table mesures)
         // ============================================
-        
         async function loadAllData() {
-            try {
-                data = { locations: {}, devices: {} };
+            data = { rooms: {} };
 
-                // Récupérer tous les appareils avec leurs lieux
-                const { data: devices, error: devicesError } = await supabase
-                    .from('devices')
-                    .select('*');
+            // Requête simple : on lit piece, capteur, valeur, timestamp
+            const { data: mesures, error } = await sb
+                .from('mesures')
+                .select('piece, capteur, valeur, timestamp')
+                .order('timestamp', { ascending: true });
 
-                if (devicesError) throw devicesError;
+            if (error) throw new Error('Erreur Supabase: ' + error.message);
+            if (!mesures || !mesures.length) return;
 
-                // Organiser par lieu
-                const locationGroups = {};
-                
-                for (const device of devices) {
-                    const location = device.location || 'Sans lieu';
-                    
-                    if (!locationGroups[location]) {
-                        locationGroups[location] = [];
-                    }
-                    locationGroups[location].push(device);
-                }
+            // Regrouper par pièce → capteur
+            const byRoom = {};
+            for (const m of mesures) {
+                if (!byRoom[m.piece]) byRoom[m.piece] = {};
+                if (!byRoom[m.piece][m.capteur]) byRoom[m.piece][m.capteur] = [];
+                byRoom[m.piece][m.capteur].push(m);
+            }
 
-                let themeIndex = 0;
-
-                // Pour chaque lieu, charger les données des appareils
-                for (const [location, locationDevices] of Object.entries(locationGroups)) {
-                    const theme = THEMES[themeIndex % THEMES.length];
-                    themeIndex++;
-
-                    const devicesData = [];
-                    
-                    for (const device of locationDevices) {
-                        const deviceData = await loadDeviceData(device, theme);
-                        data.devices[device.device_uid] = deviceData;
-                        devicesData.push(deviceData);
-                    }
-
-                    // Calculer les stats du lieu
-                    const tempDevices = devicesData.filter(d => d.sensors['temperature']);
-                    
-                    data.locations[location] = {
-                        id: location,
-                        name: location,
-                        theme,
-                        devices: devicesData,
-                        deviceCount: devicesData.length,
-                        temperature: tempDevices.length > 0 ? {
-                            current: tempDevices[0].sensors['temperature'].current,
-                            min: Math.min(...tempDevices.map(d => d.sensors['temperature'].min)),
-                            max: Math.max(...tempDevices.map(d => d.sensors['temperature'].max))
-                        } : null
+            for (const [piece, capteurs] of Object.entries(byRoom)) {
+                const sensors = {};
+                for (const [capteur, rows] of Object.entries(capteurs)) {
+                    const values = rows.map(r => Number(r.valeur));
+                    const last = rows[rows.length - 1];
+                    const config = SENSOR_CONFIG[capteur] || {
+                        name: capteur, unit: '', color: '#888', class: 'unknown',
+                        icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`,
+                        getStatus: () => '', format: v => String(v)
                     };
-                }
-
-                renderLocations();
-
-            } catch (error) {
-                console.error('Erreur lors du chargement des données:', error);
-                document.querySelector('.loading-text').innerHTML = `
-                    <div class="error-message">
-                        Erreur de chargement<br>
-                        <small>${error.message}</small>
-                    </div>
-                `;
-                document.querySelector('.loading-spinner').style.display = 'none';
-            }
-        }
-
-        async function loadDeviceData(device, theme) {
-            const sensors = {};
-
-            // Récupérer les mesures de cet appareil
-            const { data: measurements, error } = await supabase
-                .from('measurements')
-                .select('*')
-                .eq('device_uid', device.device_uid)
-                .order('created_at', { ascending: true });
-
-            if (error) {
-                console.error('Erreur mesures:', error);
-                return {
-                    id: device.device_uid,
-                    device_uid: device.device_uid,
-                    location: device.location,
-                    device_type: device.device_type,
-                    theme,
-                    sensors: {},
-                    lastMeasure: device.created_at
-                };
-            }
-
-            // Organiser par type de capteur
-            const sensorTypes = ['temperature', 'humidity', 'luminosity'];
-            
-            for (const sensorType of sensorTypes) {
-                const sensorMeasurements = measurements.filter(m => m[sensorType] !== null);
-                
-                if (sensorMeasurements.length > 0) {
-                    const values = sensorMeasurements.map(m => m[sensorType]);
-                    const lastMeasurement = sensorMeasurements[sensorMeasurements.length - 1];
-                    
-                    sensors[sensorType] = {
-                        type: sensorType,
-                        config: SENSOR_CONFIG[sensorType],
-                        current: lastMeasurement[sensorType],
+                    sensors[capteur] = {
+                        type: capteur, config,
+                        current: Number(last.valeur),
                         min: Math.min(...values),
                         max: Math.max(...values),
                         avg: values.reduce((a, b) => a + b, 0) / values.length,
                         count: values.length,
-                        lastTimestamp: lastMeasurement.created_at,
-                        history: sensorMeasurements.map(m => ({
-                            value: m[sensorType],
-                            time: m.created_at
-                        }))
+                        lastTimestamp: last.timestamp,
+                        history: rows.map(r => ({ value: Number(r.valeur), time: r.timestamp }))
                     };
                 }
+                const lastTs = Object.values(sensors).reduce((max, s) =>
+                    s.lastTimestamp > max ? s.lastTimestamp : max, '');
+                data.rooms[piece] = { id: piece, piece, sensors, lastMeasure: lastTs };
             }
 
-            const lastMeasure = measurements.length > 0 
-                ? measurements[measurements.length - 1].created_at 
-                : device.created_at;
-
-            return {
-                id: device.device_uid,
-                device_uid: device.device_uid,
-                location: device.location,
-                device_type: device.device_type,
-                theme,
-                sensors,
-                lastMeasure
-            };
+            renderRooms();
         }
 
         // ============================================
         // RAFRAÎCHISSEMENT
         // ============================================
-        
-        function showRefreshIndicator() {
-            const indicator = document.getElementById('refreshIndicator');
-            indicator.classList.add('visible');
-            setTimeout(() => indicator.classList.remove('visible'), 2000);
-        }
-
         async function refreshData() {
-            const savedState = AppState.save();
-            showRefreshIndicator();
-            
+            const saved = { room: AppState.currentRoom, sensor: AppState.currentSensor };
+            document.getElementById('refreshIndicator').classList.add('visible');
+            setTimeout(() => document.getElementById('refreshIndicator').classList.remove('visible'), 2000);
             try {
                 await loadAllData();
-                AppState.restore(savedState);
-                
-                if (AppState.currentDevice && data.devices[AppState.currentDevice]) {
-                    showRoom(AppState.currentDevice);
-                } else if (AppState.currentLocation && data.locations[AppState.currentLocation]) {
-                    showHouse(AppState.currentLocation);
+                AppState.currentRoom = saved.room;
+                AppState.currentSensor = saved.sensor;
+                if (AppState.currentRoom && data.rooms[AppState.currentRoom]) {
+                    showDetail(AppState.currentRoom);
                 }
-                
-            } catch (error) {
-                console.error('Erreur rafraîchissement:', error);
-                AppState.restore(savedState);
-                alert('Erreur lors du rafraîchissement. Veuillez réessayer.');
-            }
+            } catch (e) { console.error(e); }
         }
 
         // ============================================
-        // RENDU PAGE 1: LIEUX
+        // PAGE 1 : LISTE DES PIÈCES
         // ============================================
-        
-        function renderLocations() {
-            const container = document.getElementById('locationsList');
-            container.innerHTML = '';
-
-            Object.values(data.locations).forEach((location, index) => {
-                const card = document.createElement('div');
-                card.className = `location-card`;
-                card.style.animationDelay = `${index * 0.1}s`;
-                card.onclick = () => showHouse(location.id);
-
-                const tempDisplay = location.temperature 
-                    ? `<div class="card-temp">
-                        <div class="card-temp-value">${location.temperature.current.toFixed(1)}°</div>
-                        <div class="card-temp-range">H:${location.temperature.max.toFixed(1)}° L:${location.temperature.min.toFixed(1)}°</div>
-                       </div>`
-                    : '';
-
-                card.innerHTML = `
-                    <div class="card-bg"></div>
-                    <div class="card-content">
-                        <div class="card-header">
-                            <div>
-                                <div class="location-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                                        <polyline points="9,22 9,12 15,12 15,22"/>
-                                    </svg>
-                                </div>
-                                <div class="card-title">${location.name}</div>
-                                <div class="room-count">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="3" y="3" width="7" height="7"/>
-                                        <rect x="14" y="3" width="7" height="7"/>
-                                        <rect x="3" y="14" width="7" height="7"/>
-                                        <rect x="14" y="14" width="7" height="7"/>
-                                    </svg>
-                                    ${location.deviceCount} appareil${location.deviceCount > 1 ? 's' : ''}
-                                </div>
-                            </div>
-                            ${tempDisplay}
-                        </div>
-                        <div class="card-sensors">
-                            ${renderLocationSensors(location)}
-                        </div>
-                    </div>
-                `;
-
-                container.appendChild(card);
-            });
-        }
-
-        function renderLocationSensors(location) {
-            const allSensors = {};
-            location.devices.forEach(device => {
-                Object.keys(device.sensors).forEach(type => {
-                    if (!allSensors[type]) {
-                        allSensors[type] = [];
-                    }
-                    allSensors[type].push(device.sensors[type].current);
-                });
-            });
-
-            return Object.entries(allSensors)
-                .filter(([type]) => type !== 'temperature')
-                .map(([type, values]) => {
-                    const config = SENSOR_CONFIG[type];
-                    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-                    return `
-                        <div class="sensor-badge ${config.class}">
-                            ${config.icon}
-                            <span class="value">${config.format(avg)}${config.unit}</span>
-                        </div>
-                    `;
-                }).join('');
-        }
-
-        // ============================================
-        // RENDU PAGE 2: APPAREILS D'UN LIEU
-        // ============================================
-        
-        function showHouse(locationId) {
-            AppState.currentLocation = locationId || AppState.currentLocation;
-            const location = data.locations[AppState.currentLocation];
-            if (!location) return;
-
-            document.getElementById('locationsPage').classList.add('hidden');
-            document.getElementById('housePage').classList.remove('hidden');
-            document.getElementById('roomPage').classList.add('hidden');
-
-            document.getElementById('houseTitle').textContent = location.name;
-            document.getElementById('houseSubtitle').textContent = `${location.deviceCount} appareil${location.deviceCount > 1 ? 's' : ''}`;
-
-            renderDevices(location);
-            window.scrollTo(0, 0);
-        }
-
-        function renderDevices(location) {
+        function renderRooms() {
             const container = document.getElementById('roomsList');
             container.innerHTML = '';
 
-            location.devices.forEach((device, index) => {
-                const deviceConfig = getDeviceConfig(device.device_type);
+            Object.values(data.rooms).forEach((room, i) => {
+                const rc = getRoomConfig(room.piece);
                 const card = document.createElement('div');
-                card.className = `room-card`;
-                card.style.animationDelay = `${index * 0.1}s`;
-                card.onclick = () => showRoom(device.device_uid);
+                card.className = 'room-card';
+                card.style.animationDelay = `${i * 0.1}s`;
+                card.onclick = () => showDetail(room.id);
 
-                const tempSensor = device.sensors['temperature'];
-                const tempDisplay = tempSensor 
-                    ? `<div class="card-temp">
-                        <div class="card-temp-value">${tempSensor.config.format(tempSensor.current)}°</div>
-                        <div class="card-temp-range">H:${tempSensor.config.format(tempSensor.max)}° L:${tempSensor.config.format(tempSensor.min)}°</div>
-                       </div>`
-                    : '';
+                const temp = room.sensors['T'];
+                const tempHTML = temp ? `
+                    <div class="card-temp">
+                        <div class="card-temp-value">${temp.config.format(temp.current)}°</div>
+                        <div class="card-temp-range">H:${temp.config.format(temp.max)}° L:${temp.config.format(temp.min)}°</div>
+                    </div>` : '';
 
-                const status = tempSensor ? tempSensor.config.getStatus(tempSensor.current) : '';
+                const status = temp ? temp.config.getStatus(temp.current) : '';
+
+                const badges = Object.entries(room.sensors)
+                    .filter(([t]) => t !== 'T')
+                    .map(([, s]) => `
+                        <div class="sensor-badge ${s.config.class}">
+                            ${s.config.icon}
+                            <span class="value">${s.config.format(s.current)}${s.config.unit}</span>
+                        </div>`).join('');
 
                 card.innerHTML = `
-                    <div class="card-bg" style="background: ${deviceConfig.gradient}"></div>
+                    <div class="card-bg" style="background: ${rc.gradient}"></div>
                     <div class="card-content">
                         <div class="card-header">
                             <div>
-                                <div class="room-icon">
-                                    ${deviceConfig.icon}
+                                <div class="room-icon" style="background: ${rc.color}30; border: 1px solid ${rc.color}50;">
+                                    ${rc.icon}
                                 </div>
-                                <div class="card-title">${device.device_uid}</div>
-                                <div class="card-detail">${status || device.device_type}</div>
+                                <div class="card-title">${room.piece}</div>
+                                <div class="card-detail">${status}</div>
                             </div>
-                            ${tempDisplay}
+                            ${tempHTML}
                         </div>
-                        <div class="card-sensors">
-                            ${renderDeviceSensors(device)}
-                        </div>
-                    </div>
-                `;
-
+                        <div class="card-sensors">${badges}</div>
+                    </div>`;
                 container.appendChild(card);
             });
         }
 
-        function renderDeviceSensors(device) {
-            return Object.entries(device.sensors)
-                .filter(([type]) => type !== 'temperature')
-                .map(([type, sensor]) => {
-                    return `
-                        <div class="sensor-badge ${sensor.config.class}">
-                            ${sensor.config.icon}
-                            <span class="value">${sensor.config.format(sensor.current)}${sensor.config.unit}</span>
-                        </div>
-                    `;
-                }).join('');
-        }
-
         // ============================================
-        // RENDU PAGE 3: DÉTAILS APPAREIL
+        // PAGE 2 : DÉTAILS D'UNE PIÈCE
         // ============================================
-        
-        function showRoom(deviceId) {
-            AppState.currentDevice = deviceId;
-            const device = data.devices[deviceId];
-            if (!device) return;
+        function showDetail(roomId) {
+            AppState.currentRoom = roomId;
+            const room = data.rooms[roomId];
+            if (!room) return;
 
-            const deviceConfig = getDeviceConfig(device.device_type);
-
-            const sensorTypes = Object.keys(device.sensors);
-            if (!AppState.currentSensor || !device.sensors[AppState.currentSensor]) {
-                AppState.currentSensor = sensorTypes.includes('temperature') ? 'temperature' : sensorTypes[0];
+            const rc = getRoomConfig(room.piece);
+            const types = Object.keys(room.sensors);
+            if (!AppState.currentSensor || !room.sensors[AppState.currentSensor]) {
+                AppState.currentSensor = types.includes('T') ? 'T' : types[0];
             }
 
-            document.getElementById('locationsPage').classList.add('hidden');
-            document.getElementById('housePage').classList.add('hidden');
-            document.getElementById('roomPage').classList.remove('hidden');
+            document.getElementById('roomsPage').classList.add('hidden');
+            document.getElementById('detailPage').classList.remove('hidden');
             document.getElementById('particles').classList.add('visible');
+            document.getElementById('detailsBg').style.background =
+                `linear-gradient(180deg, #0a0a0f 0%, ${rc.color}15 50%, ${rc.color}25 100%)`;
+            document.getElementById('roomTitle').textContent = room.piece;
 
-            document.getElementById('detailsBg').style.background = `linear-gradient(180deg, #0a0a0f 0%, ${deviceConfig.color}15 50%, ${deviceConfig.color}25 100%)`;
-
-            document.getElementById('backToHouseName').textContent = device.location;
-            document.getElementById('roomLocation').textContent = device.location;
-            document.getElementById('roomName').textContent = device.device_uid;
-
-            renderSensorsGrid(device);
-            updateSensorDisplay(device);
-
+            renderSensorsGrid(room);
+            updateSensorDisplay(room);
             window.scrollTo(0, 0);
         }
 
-        function renderSensorsGrid(device) {
-            const container = document.getElementById('sensorsGrid');
-            container.innerHTML = '';
-
-            Object.entries(device.sensors).forEach(([type, sensor]) => {
+        function renderSensorsGrid(room) {
+            const c = document.getElementById('sensorsGrid');
+            c.innerHTML = '';
+            Object.entries(room.sensors).forEach(([type, sensor]) => {
                 const card = document.createElement('div');
                 card.className = `sensor-card ${sensor.config.class} ${type === AppState.currentSensor ? 'active' : ''}`;
                 card.onclick = () => selectSensor(type);
-
                 card.innerHTML = `
                     <div class="sensor-card-icon">${sensor.config.icon}</div>
                     <div class="sensor-card-value">${sensor.config.format(sensor.current)}${sensor.config.unit}</div>
-                    <div class="sensor-card-label">${sensor.config.name}</div>
-                `;
-
-                container.appendChild(card);
+                    <div class="sensor-card-label">${sensor.config.name}</div>`;
+                c.appendChild(card);
             });
         }
 
         function selectSensor(type) {
             AppState.currentSensor = type;
-            const device = data.devices[AppState.currentDevice];
-            
+            const room = data.rooms[AppState.currentRoom];
             document.querySelectorAll('.sensor-card').forEach(card => {
-                card.classList.toggle('active', card.classList.contains(SENSOR_CONFIG[type]?.class));
+                const cfg = SENSOR_CONFIG[type];
+                card.classList.toggle('active', cfg && card.classList.contains(cfg.class));
             });
-
-            updateSensorDisplay(device);
+            updateSensorDisplay(room);
         }
 
-        function updateSensorDisplay(device) {
-            const sensor = device.sensors[AppState.currentSensor];
+        function updateSensorDisplay(room) {
+            const sensor = room.sensors[AppState.currentSensor];
             if (!sensor) return;
 
-            document.getElementById('mainValue').textContent = 
+            document.getElementById('mainValue').textContent =
                 sensor.config.format(sensor.current) + sensor.config.unit;
-            document.getElementById('mainStatus').textContent = 
+            document.getElementById('mainStatus').textContent =
                 sensor.config.getStatus(sensor.current);
-            document.getElementById('mainHigh').textContent = 
+            document.getElementById('mainHigh').textContent =
                 'Max: ' + sensor.config.format(sensor.max) + sensor.config.unit;
-            document.getElementById('mainLow').textContent = 
+            document.getElementById('mainLow').textContent =
                 'Min: ' + sensor.config.format(sensor.min) + sensor.config.unit;
 
-            renderStats(sensor);
-            updateChart(sensor);
-
-            document.getElementById('lastUpdate').textContent = formatDateTime(device.lastMeasure);
-        }
-
-        function renderStats(sensor) {
-            const container = document.getElementById('statsGrid');
-            container.innerHTML = `
+            document.getElementById('statsGrid').innerHTML = `
                 <div class="stat-item">
                     <div class="stat-label">Moyenne</div>
                     <div class="stat-value">${sensor.config.format(sensor.avg)}${sensor.config.unit}</div>
@@ -1389,13 +610,14 @@
                 <div class="stat-item">
                     <div class="stat-label">Dernière</div>
                     <div class="stat-value">${formatTime(sensor.lastTimestamp)}</div>
-                </div>
-            `;
+                </div>`;
+
+            updateChart(sensor);
+            document.getElementById('lastUpdate').textContent = formatDateTime(room.lastMeasure);
         }
 
         function updateChart(sensor) {
             const ctx = document.getElementById('mainChart').getContext('2d');
-            
             const labels = sensor.history.map(h => formatTime(h.time));
             const values = sensor.history.map(h => h.value);
 
@@ -1406,8 +628,8 @@
                 mainChart.data.datasets[0].backgroundColor = sensor.config.color + '20';
                 mainChart.data.datasets[0].pointBackgroundColor = sensor.config.color;
                 mainChart.data.datasets[0].pointHoverBackgroundColor = sensor.config.color;
-                mainChart.options.scales.y.ticks.callback = (v) => sensor.config.format(v) + sensor.config.unit;
-                mainChart.options.plugins.tooltip.callbacks.label = (ctx) => `${sensor.config.format(ctx.raw)}${sensor.config.unit}`;
+                mainChart.options.scales.y.ticks.callback = v => sensor.config.format(v) + sensor.config.unit;
+                mainChart.options.plugins.tooltip.callbacks.label = c => `${sensor.config.format(c.raw)}${sensor.config.unit}`;
                 mainChart.update('none');
             } else {
                 mainChart = new Chart(ctx, {
@@ -1415,49 +637,27 @@
                     data: {
                         labels,
                         datasets: [{
-                            data: values,
-                            borderColor: sensor.config.color,
-                            backgroundColor: sensor.config.color + '20',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 2,
-                            pointHoverRadius: 6,
+                            data: values, borderColor: sensor.config.color,
+                            backgroundColor: sensor.config.color + '20', borderWidth: 2,
+                            fill: true, tension: 0.4, pointRadius: 2, pointHoverRadius: 6,
                             pointBackgroundColor: sensor.config.color,
                             pointHoverBackgroundColor: sensor.config.color
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
+                        responsive: true, maintainAspectRatio: false,
                         interaction: { intersect: false, mode: 'index' },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                                titleColor: '#fff',
-                                bodyColor: '#fff',
-                                borderColor: 'rgba(255, 255, 255, 0.1)',
-                                borderWidth: 1,
-                                cornerRadius: 12,
-                                padding: 12,
-                                callbacks: {
-                                    label: (ctx) => `${sensor.config.format(ctx.raw)}${sensor.config.unit}`
-                                }
+                                backgroundColor: 'rgba(0,0,0,0.85)', titleColor: '#fff', bodyColor: '#fff',
+                                borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1, cornerRadius: 12, padding: 12,
+                                callbacks: { label: c => `${sensor.config.format(c.raw)}${sensor.config.unit}` }
                             }
                         },
                         scales: {
-                            x: {
-                                grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-                                ticks: { color: 'rgba(255, 255, 255, 0.4)', maxTicksLimit: 8, maxRotation: 0 }
-                            },
-                            y: {
-                                grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-                                ticks: { 
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                    callback: (v) => sensor.config.format(v) + sensor.config.unit
-                                }
-                            }
+                            x: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { color: 'rgba(255,255,255,0.4)', maxTicksLimit: 8, maxRotation: 0 } },
+                            y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { color: 'rgba(255,255,255,0.4)', callback: v => sensor.config.format(v) + sensor.config.unit } }
                         }
                     }
                 });
@@ -1467,54 +667,37 @@
         // ============================================
         // NAVIGATION
         // ============================================
-        
-        function showLocations() {
-            document.getElementById('locationsPage').classList.remove('hidden');
-            document.getElementById('housePage').classList.add('hidden');
-            document.getElementById('roomPage').classList.add('hidden');
+        function showRooms() {
+            document.getElementById('roomsPage').classList.remove('hidden');
+            document.getElementById('detailPage').classList.add('hidden');
             document.getElementById('particles').classList.remove('visible');
-            AppState.currentLocation = null;
-            AppState.currentDevice = null;
-            if (mainChart) { mainChart.destroy(); mainChart = null; }
-        }
-
-        function showHouse() {
-            showHouse(AppState.currentLocation);
-            document.getElementById('particles').classList.remove('visible');
-            AppState.currentDevice = null;
+            AppState.currentRoom = null;
+            AppState.currentSensor = null;
             if (mainChart) { mainChart.destroy(); mainChart = null; }
         }
 
         // ============================================
         // HELPERS
         // ============================================
-        
-        function formatTime(timestamp) {
-            if (!timestamp) return '--';
-            const date = new Date(timestamp);
-            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        function formatTime(ts) {
+            if (!ts) return '--';
+            return new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
         }
-
-        function formatDateTime(timestamp) {
-            if (!timestamp) return '--';
-            const date = new Date(timestamp);
-            return date.toLocaleDateString('fr-FR') + ' à ' + 
-                   date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        function formatDateTime(ts) {
+            if (!ts) return '--';
+            const d = new Date(ts);
+            return d.toLocaleDateString('fr-FR') + ' à ' +
+                d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
         }
-
-        // ============================================
-        // PARTICULES
-        // ============================================
-        
         function createParticles() {
-            const container = document.getElementById('particles');
+            const c = document.getElementById('particles');
             for (let i = 0; i < 40; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-                container.appendChild(particle);
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 20 + 's';
+                p.style.animationDuration = (15 + Math.random() * 10) + 's';
+                c.appendChild(p);
             }
         }
     </script>
