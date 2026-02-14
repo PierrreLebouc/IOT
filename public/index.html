@@ -62,15 +62,28 @@
         </div>
         <div class="details-content">
             <div class="sensors-grid" id="sensorsGrid"></div>
+
+            <!-- Sélecteur de période -->
             <div class="section-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
                 </svg>
                 <span>Historique</span>
             </div>
+            <div class="period-selector" id="periodSelector">
+                <button class="period-btn" data-period="6h" onclick="setPeriod('6h')">6h</button>
+                <button class="period-btn active" data-period="24h" onclick="setPeriod('24h')">24h</button>
+                <button class="period-btn" data-period="2d" onclick="setPeriod('2d')">2j</button>
+                <button class="period-btn" data-period="7d" onclick="setPeriod('7d')">7j</button>
+                <button class="period-btn" data-period="30d" onclick="setPeriod('30d')">30j</button>
+            </div>
+
             <div class="glass-card chart-card">
                 <div class="chart-container"><canvas id="mainChart"></canvas></div>
+                <!-- Légende seuils -->
+                <div class="chart-legend" id="chartLegend"></div>
             </div>
+
             <div class="section-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 3v18h18"/><path d="m18 9-5 5-4-4-6 6"/>
