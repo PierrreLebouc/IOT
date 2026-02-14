@@ -192,11 +192,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         await loadAllData();
         document.getElementById('loadingScreen').classList.add('hidden');
-<<<<<<< HEAD
-        // Auto-refresh toutes les 10 secondes
-        setInterval(() => refreshData(true), 10000);
-=======
->>>>>>> fd56ad0 (Auto-refresh deleted)
     } catch (err) {
         console.error(err);
         document.querySelector('.loading-text').innerHTML =
