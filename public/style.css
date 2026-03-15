@@ -18,7 +18,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-    background: #18181825;
+    background: #0a0a0f;
     min-height: 100vh;
     color: var(--text-primary);
     overflow-x: hidden;
@@ -259,6 +259,27 @@ body {
 }
 .period-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.06); }
 .period-btn.active {
+    background: rgba(255, 255, 255, 0.15); color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* HOUR SELECTOR */
+.hour-selector {
+    display: flex; gap: 6px; margin-bottom: 12px;
+    background: var(--glass-bg); border-radius: 14px;
+    padding: 4px; border: 1px solid var(--glass-border);
+    width: fit-content;
+    animation: fadeIn 0.3s ease;
+}
+.hour-selector.hidden { display: none; }
+.hour-btn {
+    padding: 6px 14px; border: none; border-radius: 10px;
+    background: transparent; color: var(--text-secondary);
+    font-size: 0.8rem; font-weight: 500; cursor: pointer;
+    transition: var(--transition-smooth);
+}
+.hour-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.06); }
+.hour-btn.active {
     background: rgba(255, 255, 255, 0.15); color: var(--text-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
