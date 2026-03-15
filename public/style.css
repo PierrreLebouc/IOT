@@ -283,6 +283,10 @@ body {
     background: rgba(255, 255, 255, 0.15); color: var(--text-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
+.hour-btn[data-hour="min"] { color: var(--accent-humidity); }
+.hour-btn[data-hour="max"] { color: var(--accent-temp); }
+.hour-btn[data-hour="min"].active { background: rgba(78, 205, 196, 0.2); color: var(--accent-humidity); }
+.hour-btn[data-hour="max"].active { background: rgba(255, 107, 107, 0.2); color: var(--accent-temp); }
 
 /* CHART */
 .chart-card { padding: 20px; }
