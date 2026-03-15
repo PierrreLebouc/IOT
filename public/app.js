@@ -418,11 +418,11 @@ function filterByPeriod(history) {
 
     const n = periodConf.count;
 
-    // Pour 7j et 30j : ne garder que 0h, 6h, 12h, 18h
+    // Pour 7j et 30j : ne garder que 2h, 8h, 14h, 20h
     if (AppState.currentPeriod === '7d' || AppState.currentPeriod === '30d') {
         const filtered = history.filter(h => {
             const hour = new Date(h.time).getHours();
-            return hour === 0 || hour === 6 || hour === 12 || hour === 18;
+            return hour === 2 || hour === 8 || hour === 14 || hour === 20;
         });
         const count = AppState.currentPeriod === '7d' ? 28 : 120; // 4 mesures/jour × 7 ou 30
         return filtered.length <= count ? filtered : filtered.slice(-count);
