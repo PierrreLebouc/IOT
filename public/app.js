@@ -442,16 +442,38 @@ function filterByPeriod(history) {
 
     const n = periodConf.count;
 
-    // Pour 7j, 1 mois et 3 mois : filtrer par heures (2h, 8h, 14h, 20h)
+    // Pour 7j, 1 mois et 3 mois : filtrer par heures (0h, 6h, 12h, 18h) ou min/max
     if (AppState.currentPeriod === '7d' || AppState.currentPeriod === '1m' || AppState.currentPeriod === '3m') {
         let filtered;
-        if (AppState.currentHourFilter !== 'all') {
+        const maxDays = AppState.currentPeriod === '7d' ? 7 : AppState.currentPeriod === '1m' ? 30 : 90;
+
+        if (AppState.currentHourFilter === 'min' || AppState.currentHourFilter === 'max') {
+            // Grouper par jour et prendre le min ou max
+            const byDay = {};
+            history.forEach(h => {
+                const dayKey = new Date(h.time).toISOString().slice(0, 10);
+                if (!byDay[dayKey]) byDay[dayKey] = [];
+                byDay[dayKey].push(h);
+            });
+            filtered = Object.values(byDay).map(dayPoints => {
+                if (AppState.currentHourFilter === 'min') {
+                    return dayPoints.reduce((best, h) => h.value < best.value ? h : best);
+                } else {
+                    return dayPoints.reduce((best, h) => h.value > best.value ? h : best);
+                }
+            });
+            // Trier par date
+            filtered.sort((a, b) => new Date(a.time) - new Date(b.time));
+            return filtered.length <= maxDays ? filtered : filtered.slice(-maxDays);
+
+        } else if (AppState.currentHourFilter !== 'all') {
+            // Une heure spécifique (0, 6, 12, 18)
             filtered = history.filter(h => {
                 const hour = new Date(h.time).getHours();
                 return hour === AppState.currentHourFilter;
             });
-            const count = AppState.currentPeriod === '7d' ? 7 : AppState.currentPeriod === '1m' ? 30 : 90;
-            return filtered.length <= count ? filtered : filtered.slice(-count);
+            return filtered.length <= maxDays ? filtered : filtered.slice(-maxDays);
+
         } else {
             // "Toutes" : pour 7j on garde tout, pour 1m/3m on filtre les heures de référence
             if (AppState.currentPeriod === '7d') {
@@ -459,7 +481,7 @@ function filterByPeriod(history) {
             }
             filtered = history.filter(h => {
                 const hour = new Date(h.time).getHours();
-                return hour === 2 || hour === 8 || hour === 14 || hour === 20;
+                return hour === 0 || hour === 6 || hour === 12 || hour === 18;
             });
             return filtered.length <= n ? filtered : filtered.slice(-n);
         }
