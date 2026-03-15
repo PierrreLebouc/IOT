@@ -180,7 +180,7 @@ const PERIODS = {
 // ============================================
 // ÉTAT
 // ============================================
-const AppState = { currentRoom: null, currentSensor: null, currentPeriod: '24h' };
+const AppState = { currentRoom: null, currentSensor: null, currentPeriod: '24h', currentHourFilter: 'all' };
 let data = { rooms: {} };
 let mainChart = null;
 
@@ -255,7 +255,7 @@ async function loadAllData() {
 // RAFRAÎCHISSEMENT
 // ============================================
 async function refreshData(silent = false) {
-    const saved = { room: AppState.currentRoom, sensor: AppState.currentSensor, period: AppState.currentPeriod };
+    const saved = { room: AppState.currentRoom, sensor: AppState.currentSensor, period: AppState.currentPeriod, hourFilter: AppState.currentHourFilter };
     if (!silent) {
         document.getElementById('refreshIndicator').classList.add('visible');
         setTimeout(() => document.getElementById('refreshIndicator').classList.remove('visible'), 2000);
@@ -265,6 +265,7 @@ async function refreshData(silent = false) {
         AppState.currentRoom = saved.room;
         AppState.currentSensor = saved.sensor;
         AppState.currentPeriod = saved.period;
+        AppState.currentHourFilter = saved.hourFilter;
         if (AppState.currentRoom && data.rooms[AppState.currentRoom]) {
             showDetail(AppState.currentRoom);
         }
@@ -405,6 +406,28 @@ function setPeriod(period) {
     document.querySelectorAll('.period-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.period === period);
     });
+
+    // Afficher/masquer le sélecteur d'heure
+    const hourSelector = document.getElementById('hourSelector');
+    if (period === '7d' || period === '30d') {
+        hourSelector.classList.remove('hidden');
+    } else {
+        hourSelector.classList.add('hidden');
+        AppState.currentHourFilter = 'all';
+        document.querySelectorAll('.hour-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.hour === 'all');
+        });
+    }
+
+    const room = data.rooms[AppState.currentRoom];
+    if (room) updateSensorDisplay(room);
+}
+
+function setHourFilter(hour) {
+    AppState.currentHourFilter = hour;
+    document.querySelectorAll('.hour-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.hour === String(hour));
+    });
     const room = data.rooms[AppState.currentRoom];
     if (room) updateSensorDisplay(room);
 }
@@ -418,14 +441,26 @@ function filterByPeriod(history) {
 
     const n = periodConf.count;
 
-    // Pour 7j et 30j : ne garder que 2h, 8h, 14h, 20h
+    // Pour 7j et 30j : filtrer par heures
     if (AppState.currentPeriod === '7d' || AppState.currentPeriod === '30d') {
-        const filtered = history.filter(h => {
-            const hour = new Date(h.time).getHours();
-            return hour === 2 || hour === 8 || hour === 14 || hour === 20;
-        });
-        const count = AppState.currentPeriod === '7d' ? 28 : 120; // 4 mesures/jour × 7 ou 30
-        return filtered.length <= count ? filtered : filtered.slice(-count);
+        let filtered;
+        if (AppState.currentHourFilter !== 'all') {
+            // Une seule heure sélectionnée
+            filtered = history.filter(h => {
+                const hour = new Date(h.time).getHours();
+                return hour === AppState.currentHourFilter;
+            });
+            const count = AppState.currentPeriod === '7d' ? 7 : 30; // 1 mesure/jour
+            return filtered.length <= count ? filtered : filtered.slice(-count);
+        } else {
+            // Toutes les heures de référence
+            filtered = history.filter(h => {
+                const hour = new Date(h.time).getHours();
+                return hour === 2 || hour === 8 || hour === 14 || hour === 20;
+            });
+            const count = AppState.currentPeriod === '7d' ? 28 : 120; // 4 mesures/jour
+            return filtered.length <= count ? filtered : filtered.slice(-count);
+        }
     }
 
     // Pour 6h, 24h, 2j : toutes les mesures, limité aux N dernières
@@ -732,6 +767,8 @@ function showRooms() {
     AppState.currentRoom = null;
     AppState.currentSensor = null;
     AppState.currentPeriod = '24h';
+    AppState.currentHourFilter = 'all';
+    document.getElementById('hourSelector').classList.add('hidden');
     if (mainChart) { mainChart.destroy(); mainChart = null; }
 }
 
