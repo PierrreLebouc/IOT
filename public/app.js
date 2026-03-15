@@ -14,38 +14,21 @@ const SENSOR_CONFIG = {
         icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>`,
         getStatus: v => v < 16 ? 'Froid' : v < 18 ? 'Frais' : v <= 24 ? 'Confortable' : v <= 26 ? 'Chaud' : 'Très chaud',
         format: v => Number(v).toFixed(1),
-        // Gradient multi-paliers : bleu très clair (min) → bleu (7°) → orange (18°) → rouge (chaud)
         getColor: v => {
-            // Paliers : [-5, 7, 18, 35]
             let r, g, b;
-            if (v <= -5) {
-                // Bleu très clair
-                r = 170; g = 215; b = 255;
-            } else if (v <= 7) {
-                // -5 → 7 : bleu très clair → bleu
+            if (v <= -5) { r = 170; g = 215; b = 255; }
+            else if (v <= 7) {
                 const t = (v + 5) / 12;
-                r = Math.round(170 - t * 120);  // 170 → 50
-                g = Math.round(215 - t * 95);   // 215 → 120
-                b = Math.round(255 - t * 25);   // 255 → 230
+                r = Math.round(170 - t * 120); g = Math.round(215 - t * 95); b = Math.round(255 - t * 25);
             } else if (v <= 18) {
-                // 7 → 18 : bleu → orange
                 const t = (v - 7) / 11;
-                r = Math.round(50 + t * 195);   // 50 → 245
-                g = Math.round(120 + t * 40);   // 120 → 160
-                b = Math.round(230 - t * 190);  // 230 → 40
+                r = Math.round(50 + t * 195); g = Math.round(120 + t * 40); b = Math.round(230 - t * 190);
             } else if (v <= 35) {
-                // 18 → 35 : orange → rouge
                 const t = (v - 18) / 17;
-                r = Math.round(245 + t * 10);   // 245 → 255
-                g = Math.round(160 - t * 120);  // 160 → 40
-                b = Math.round(40 - t * 10);    // 40 → 30
-            } else {
-                // > 35 : rouge vif
-                r = 255; g = 40; b = 30;
-            }
+                r = Math.round(245 + t * 10); g = Math.round(160 - t * 120); b = Math.round(40 - t * 10);
+            } else { r = 255; g = 40; b = 30; }
             return `rgb(${r},${g},${b})`;
         },
-        // Seuils d'alerte
         thresholds: [
             { value: 28, color: '#ff9f43', label: 'Chaud', dash: [6, 4] },
             { value: 32, color: '#ee5a24', label: 'Très chaud', dash: [4, 4] },
@@ -59,10 +42,7 @@ const SENSOR_CONFIG = {
         format: v => Math.round(Number(v)).toString(),
         getColor: v => {
             const t = Math.max(0, Math.min(1, (v - 20) / 60));
-            const r = Math.round(100 - t * 30);
-            const g = Math.round(180 + t * 40);
-            const b = Math.round(160 + t * 60);
-            return `rgb(${r},${g},${b})`;
+            return `rgb(${Math.round(100 - t * 30)},${Math.round(180 + t * 40)},${Math.round(160 + t * 60)})`;
         },
         thresholds: [
             { value: 70, color: '#ff9f43', label: 'Humide', dash: [6, 4] },
@@ -74,13 +54,9 @@ const SENSOR_CONFIG = {
         icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>`,
         getStatus: v => v < 100 ? 'Sombre' : v < 300 ? 'Faible éclairage' : v < 500 ? 'Modéré' : v < 800 ? 'Bonne luminosité' : 'Très lumineux',
         format: v => Math.round(Number(v)).toString(),
-        // Gradient : noir (sombre) → jaune clair (plein jour)
         getColor: v => {
             const t = Math.max(0, Math.min(1, v / 800));
-            const r = Math.round(t * 255);
-            const g = Math.round(t * 230);
-            const b = Math.round(t * 80);
-            return `rgb(${r},${g},${b})`;
+            return `rgb(${Math.round(t * 255)},${Math.round(t * 230)},${Math.round(t * 80)})`;
         },
         thresholds: [
             { value: 800, color: '#ff9f43', label: 'Très lumineux', dash: [6, 4] }
@@ -93,10 +69,7 @@ const SENSOR_CONFIG = {
         format: v => Math.round(Number(v)).toString(),
         getColor: v => {
             const t = Math.max(0, Math.min(1, v / 100));
-            const r = Math.round(200 - t * 80);
-            const g = Math.round(120 + t * 60);
-            const b = Math.round(180 + t * 75);
-            return `rgb(${r},${g},${b})`;
+            return `rgb(${Math.round(200 - t * 80)},${Math.round(120 + t * 60)},${Math.round(180 + t * 75)})`;
         },
         thresholds: [
             { value: 20, color: '#ee5a24', label: 'Critique', dash: [4, 4] },
@@ -142,10 +115,8 @@ function getRoomConfig(name) {
 }
 
 // ============================================
-// PÉRIODES
+// HELPERS COULEUR
 // ============================================
-
-// Helper : convertir une couleur rgb() en rgba()
 function toRgba(color, alpha) {
     const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
     if (match) return `rgba(${match[1]},${match[2]},${match[3]},${alpha})`;
@@ -158,7 +129,6 @@ function toRgba(color, alpha) {
     return color;
 }
 
-// Helper : assombrir une couleur rgb pour fond de carte (texte blanc lisible)
 function darkenColor(color, factor = 0.4) {
     const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
     if (match) {
@@ -169,20 +139,24 @@ function darkenColor(color, factor = 0.4) {
     }
     return color;
 }
+
+// ============================================
+// PÉRIODES
+// ============================================
 const PERIODS = {
-    '6h':  { count: 6,   label: '6h' },
-    '24h': { count: 24,  label: '24h' },
-    '2d':  { count: 48,  label: '2j' },
-    '7d':  { count: 168, label: '7j' },
-    '1m':  { count: 120, label: '1 mois' },   // 4 mesures/jour × 30j
-    '3m':  { count: 360, label: '3 mois' }    // 4 mesures/jour × 90j
+    '6h':  { count: 6,   label: '6h',     useStats: false },
+    '24h': { count: 24,  label: '24h',    useStats: false },
+    '2d':  { count: 48,  label: '2j',     useStats: false },
+    '7d':  { count: 168, label: '7j',     useStats: false },
+    '1m':  { count: 30,  label: '1 mois', useStats: true },
+    '3m':  { count: 90,  label: '3 mois', useStats: true }
 };
 
 // ============================================
 // ÉTAT
 // ============================================
-const AppState = { currentRoom: null, currentSensor: null, currentPeriod: '24h', currentHourFilter: 'all' };
-let data = { rooms: {} };
+const AppState = { currentRoom: null, currentSensor: null, currentPeriod: '24h' };
+let data = { rooms: {}, stats: {} };
 let mainChart = null;
 
 // ============================================
@@ -205,8 +179,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 // CHARGEMENT SUPABASE
 // ============================================
 async function loadAllData() {
-    data = { rooms: {} };
+    data = { rooms: {}, stats: {} };
 
+    // 1. Charger les mesures (données brutes, max 7 jours)
     const { data: mesures, error } = await sb
         .from('mesures')
         .select('piece, capteur, valeur, timestamp')
@@ -249,6 +224,27 @@ async function loadAllData() {
         data.rooms[piece] = { id: piece, piece, sensors, lastMeasure: lastTs };
     }
 
+    // 2. Charger les statistiques journalières
+    const { data: statsData, error: statsError } = await sb
+        .from('statistiques')
+        .select('piece, capteur, jour, moyenne, min_valeur, min_heure, max_valeur, max_heure')
+        .order('jour', { ascending: true });
+
+    if (!statsError && statsData && statsData.length) {
+        for (const s of statsData) {
+            const key = `${s.piece}__${s.capteur}`;
+            if (!data.stats[key]) data.stats[key] = [];
+            data.stats[key].push({
+                jour: s.jour,
+                avg: Number(s.moyenne),
+                min: Number(s.min_valeur),
+                minHeure: s.min_heure,
+                max: Number(s.max_valeur),
+                maxHeure: s.max_heure
+            });
+        }
+    }
+
     renderRooms();
 }
 
@@ -256,7 +252,7 @@ async function loadAllData() {
 // RAFRAÎCHISSEMENT
 // ============================================
 async function refreshData(silent = false) {
-    const saved = { room: AppState.currentRoom, sensor: AppState.currentSensor, period: AppState.currentPeriod, hourFilter: AppState.currentHourFilter };
+    const saved = { room: AppState.currentRoom, sensor: AppState.currentSensor, period: AppState.currentPeriod };
     if (!silent) {
         document.getElementById('refreshIndicator').classList.add('visible');
         setTimeout(() => document.getElementById('refreshIndicator').classList.remove('visible'), 2000);
@@ -266,7 +262,6 @@ async function refreshData(silent = false) {
         AppState.currentRoom = saved.room;
         AppState.currentSensor = saved.sensor;
         AppState.currentPeriod = saved.period;
-        AppState.currentHourFilter = saved.hourFilter;
         if (AppState.currentRoom && data.rooms[AppState.currentRoom]) {
             showDetail(AppState.currentRoom);
         }
@@ -296,7 +291,6 @@ function renderRooms() {
 
         const status = temp ? temp.config.getStatus(temp.current) : '';
 
-        // Couleur dynamique basée sur le capteur principal (T en priorité, sinon le premier)
         const primarySensor = temp || Object.values(room.sensors)[0];
         const dynamicColor = primarySensor?.config?.getColor
             ? primarySensor.config.getColor(primarySensor.current)
@@ -340,7 +334,6 @@ function showDetail(roomId) {
     const room = data.rooms[roomId];
     if (!room) return;
 
-    const rc = getRoomConfig(room.piece);
     const types = Object.keys(room.sensors);
     if (!AppState.currentSensor || !room.sensors[AppState.currentSensor]) {
         AppState.currentSensor = types.includes('T') ? 'T' : types[0];
@@ -351,7 +344,6 @@ function showDetail(roomId) {
     document.getElementById('particles').classList.add('visible');
     document.getElementById('roomTitle').textContent = room.piece;
 
-    // Mettre à jour le sélecteur de période
     document.querySelectorAll('.period-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.period === AppState.currentPeriod);
     });
@@ -407,89 +399,28 @@ function setPeriod(period) {
     document.querySelectorAll('.period-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.period === period);
     });
-
-    // Afficher/masquer le sélecteur d'heure (uniquement pour 1m et 3m)
-    const hourSelector = document.getElementById('hourSelector');
-    if (period === '7d' || period === '1m' || period === '3m') {
-        hourSelector.classList.remove('hidden');
-    } else {
-        hourSelector.classList.add('hidden');
-        AppState.currentHourFilter = 'all';
-        document.querySelectorAll('.hour-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.hour === 'all');
-        });
-    }
-
-    const room = data.rooms[AppState.currentRoom];
-    if (room) updateSensorDisplay(room);
-}
-
-function setHourFilter(hour) {
-    AppState.currentHourFilter = hour;
-    document.querySelectorAll('.hour-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.hour === String(hour));
-    });
     const room = data.rooms[AppState.currentRoom];
     if (room) updateSensorDisplay(room);
 }
 
 // ============================================
-// FILTRAGE PAR PÉRIODE
+// FILTRAGE PAR PÉRIODE (données brutes)
 // ============================================
 function filterByPeriod(history) {
     const periodConf = PERIODS[AppState.currentPeriod];
     if (!periodConf) return history;
-
     const n = periodConf.count;
-
-    // Pour 7j, 1 mois et 3 mois : filtrer par heures (0h, 6h, 12h, 18h) ou min/max
-    if (AppState.currentPeriod === '7d' || AppState.currentPeriod === '1m' || AppState.currentPeriod === '3m') {
-        let filtered;
-        const maxDays = AppState.currentPeriod === '7d' ? 7 : AppState.currentPeriod === '1m' ? 30 : 90;
-
-        if (AppState.currentHourFilter === 'min' || AppState.currentHourFilter === 'max') {
-            // Grouper par jour et prendre le min ou max
-            const byDay = {};
-            history.forEach(h => {
-                const dayKey = new Date(h.time).toISOString().slice(0, 10);
-                if (!byDay[dayKey]) byDay[dayKey] = [];
-                byDay[dayKey].push(h);
-            });
-            filtered = Object.values(byDay).map(dayPoints => {
-                if (AppState.currentHourFilter === 'min') {
-                    return dayPoints.reduce((best, h) => h.value < best.value ? h : best);
-                } else {
-                    return dayPoints.reduce((best, h) => h.value > best.value ? h : best);
-                }
-            });
-            // Trier par date
-            filtered.sort((a, b) => new Date(a.time) - new Date(b.time));
-            return filtered.length <= maxDays ? filtered : filtered.slice(-maxDays);
-
-        } else if (AppState.currentHourFilter !== 'all') {
-            // Une heure spécifique (0, 6, 12, 18)
-            filtered = history.filter(h => {
-                const hour = new Date(h.time).getHours();
-                return hour === AppState.currentHourFilter;
-            });
-            return filtered.length <= maxDays ? filtered : filtered.slice(-maxDays);
-
-        } else {
-            // "Toutes" : pour 7j on garde tout, pour 1m/3m on filtre les heures de référence
-            if (AppState.currentPeriod === '7d') {
-                return history.length <= n ? history : history.slice(-n);
-            }
-            filtered = history.filter(h => {
-                const hour = new Date(h.time).getHours();
-                return hour === 0 || hour === 6 || hour === 12 || hour === 18;
-            });
-            return filtered.length <= n ? filtered : filtered.slice(-n);
-        }
-    }
-
-    // Pour 6h, 24h, 2j, 7j : toutes les mesures, limité aux N dernières
     if (history.length <= n) return history;
     return history.slice(-n);
+}
+
+// ============================================
+// DONNÉES STATS POUR 1m / 3m
+// ============================================
+function getStatsForSensor(piece, capteur, maxDays) {
+    const key = `${piece}__${capteur}`;
+    const stats = data.stats[key] || [];
+    return stats.length <= maxDays ? stats : stats.slice(-maxDays);
 }
 
 // ============================================
@@ -499,57 +430,138 @@ function updateSensorDisplay(room) {
     const sensor = room.sensors[AppState.currentSensor];
     if (!sensor) return;
 
-    // Filtrer par période
-    const filteredHistory = filterByPeriod(sensor.history);
-    const filteredValues = filteredHistory.map(h => h.value);
-    const filteredMin = Math.min(...filteredValues);
-    const filteredMax = Math.max(...filteredValues);
-    const filteredAvg = filteredValues.reduce((a, b) => a + b, 0) / filteredValues.length;
+    const periodConf = PERIODS[AppState.currentPeriod];
+    const useStats = periodConf?.useStats || false;
 
-    document.getElementById('mainValue').textContent =
-        sensor.config.format(sensor.current) + sensor.config.unit;
-    document.getElementById('mainStatus').textContent =
-        sensor.config.getStatus(sensor.current);
-    document.getElementById('mainHigh').textContent =
-        'Max: ' + sensor.config.format(filteredMax) + sensor.config.unit;
-    document.getElementById('mainLow').textContent =
-        'Min: ' + sensor.config.format(filteredMin) + sensor.config.unit;
+    if (useStats) {
+        // Mode stats : 1 mois / 3 mois
+        const stats = getStatsForSensor(room.piece, AppState.currentSensor, periodConf.count);
 
-    document.getElementById('statsGrid').innerHTML = `
-        <div class="stat-item">
-            <div class="stat-label">Moyenne</div>
-            <div class="stat-value">${sensor.config.format(filteredAvg)}${sensor.config.unit}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Amplitude</div>
-            <div class="stat-value">${sensor.config.format(filteredMax - filteredMin)}${sensor.config.unit}</div>
-            <div class="stat-detail">écart min-max</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Mesures</div>
-            <div class="stat-value">${filteredValues.length}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Dernière</div>
-            <div class="stat-value">${formatTime(sensor.lastTimestamp)}</div>
-        </div>`;
+        if (stats.length === 0) {
+            document.getElementById('mainValue').textContent = '--';
+            document.getElementById('mainStatus').textContent = 'Pas de statistiques disponibles';
+            document.getElementById('mainHigh').textContent = 'Max: --';
+            document.getElementById('mainLow').textContent = 'Min: --';
+            document.getElementById('statsGrid').innerHTML = '';
+            updateChartStats(sensor, stats);
+            updateChartLegend(sensor, true);
+            document.getElementById('lastUpdate').textContent = formatDateTime(room.lastMeasure);
+            return;
+        }
 
-    updateChart(sensor, filteredHistory, filteredAvg);
-    updateChartLegend(sensor);
+        const allMins = stats.map(s => s.min);
+        const allMaxs = stats.map(s => s.max);
+        const allAvgs = stats.map(s => s.avg);
+        const globalMin = Math.min(...allMins);
+        const globalMax = Math.max(...allMaxs);
+        const globalAvg = allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length;
+
+        document.getElementById('mainValue').textContent =
+            sensor.config.format(sensor.current) + sensor.config.unit;
+        document.getElementById('mainStatus').textContent =
+            sensor.config.getStatus(sensor.current);
+        document.getElementById('mainHigh').textContent =
+            'Max: ' + sensor.config.format(globalMax) + sensor.config.unit;
+        document.getElementById('mainLow').textContent =
+            'Min: ' + sensor.config.format(globalMin) + sensor.config.unit;
+
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">Moyenne période</div>
+                <div class="stat-value">${sensor.config.format(globalAvg)}${sensor.config.unit}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Amplitude</div>
+                <div class="stat-value">${sensor.config.format(globalMax - globalMin)}${sensor.config.unit}</div>
+                <div class="stat-detail">écart min-max</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Jours</div>
+                <div class="stat-value">${stats.length}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Dernière</div>
+                <div class="stat-value">${formatTime(sensor.lastTimestamp)}</div>
+            </div>`;
+
+        updateChartStats(sensor, stats);
+        updateChartLegend(sensor, true);
+
+    } else {
+        // Mode normal : 6h, 24h, 2j, 7j
+        const filteredHistory = filterByPeriod(sensor.history);
+        const filteredValues = filteredHistory.map(h => h.value);
+        const filteredMin = Math.min(...filteredValues);
+        const filteredMax = Math.max(...filteredValues);
+        const filteredAvg = filteredValues.reduce((a, b) => a + b, 0) / filteredValues.length;
+
+        document.getElementById('mainValue').textContent =
+            sensor.config.format(sensor.current) + sensor.config.unit;
+        document.getElementById('mainStatus').textContent =
+            sensor.config.getStatus(sensor.current);
+        document.getElementById('mainHigh').textContent =
+            'Max: ' + sensor.config.format(filteredMax) + sensor.config.unit;
+        document.getElementById('mainLow').textContent =
+            'Min: ' + sensor.config.format(filteredMin) + sensor.config.unit;
+
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">Moyenne</div>
+                <div class="stat-value">${sensor.config.format(filteredAvg)}${sensor.config.unit}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Amplitude</div>
+                <div class="stat-value">${sensor.config.format(filteredMax - filteredMin)}${sensor.config.unit}</div>
+                <div class="stat-detail">écart min-max</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Mesures</div>
+                <div class="stat-value">${filteredValues.length}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Dernière</div>
+                <div class="stat-value">${formatTime(sensor.lastTimestamp)}</div>
+            </div>`;
+
+        updateChartNormal(sensor, filteredHistory, filteredAvg);
+        updateChartLegend(sensor, false);
+    }
+
     document.getElementById('lastUpdate').textContent = formatDateTime(room.lastMeasure);
 }
 
 // ============================================
 // LÉGENDE DU GRAPHIQUE
 // ============================================
-function updateChartLegend(sensor) {
+function updateChartLegend(sensor, isStats) {
     const legend = document.getElementById('chartLegend');
     const thresholds = sensor.config.thresholds || [];
 
-    let html = `<div class="legend-item">
-        <div class="legend-zone" style="background: ${sensor.config.color}"></div>
-        <span>Zone min/max</span>
-    </div>`;
+    let html = '';
+
+    if (isStats) {
+        html += `<div class="legend-item">
+            <div class="legend-color" style="background: ${sensor.config.color}"></div>
+            <span>Moyenne</span>
+        </div>`;
+        html += `<div class="legend-item">
+            <div class="legend-color" style="background: #ff6b6b"></div>
+            <span>Max journalier</span>
+        </div>`;
+        html += `<div class="legend-item">
+            <div class="legend-color" style="background: #54a0ff"></div>
+            <span>Min journalier</span>
+        </div>`;
+        html += `<div class="legend-item">
+            <div class="legend-zone" style="background: linear-gradient(180deg, rgba(255,107,107,0.3), rgba(84,160,255,0.3))"></div>
+            <span>Zone min-max</span>
+        </div>`;
+    } else {
+        html += `<div class="legend-item">
+            <div class="legend-zone" style="background: ${sensor.config.color}"></div>
+            <span>Zone min/max</span>
+        </div>`;
+    }
 
     thresholds.forEach(t => {
         html += `<div class="legend-item">
@@ -562,67 +574,51 @@ function updateChartLegend(sensor) {
 }
 
 // ============================================
-// GRAPHIQUE
+// GRAPHIQUE MODE NORMAL (6h, 24h, 2j, 7j)
 // ============================================
-function updateChart(sensor, filteredHistory, avg) {
+function updateChartNormal(sensor, filteredHistory, avg) {
     const ctx = document.getElementById('mainChart').getContext('2d');
 
-    // Données
     const labels = filteredHistory.map(h => h.time);
     const values = filteredHistory.map(h => h.value);
 
-    // Couleurs par point (gradient dynamique)
     const getColorFn = sensor.config.getColor || (() => sensor.config.color);
     const pointColors = values.map(v => getColorFn(v));
 
-    // Zone min/max glissante (fenêtre de 5 points)
+    // Zone min/max glissante
     const windowSize = Math.max(3, Math.floor(values.length / 12));
-    const minBand = [];
-    const maxBand = [];
+    const minBand = [], maxBand = [];
     for (let i = 0; i < values.length; i++) {
         const start = Math.max(0, i - windowSize);
         const end = Math.min(values.length, i + windowSize + 1);
-        const window = values.slice(start, end);
-        minBand.push(Math.min(...window));
-        maxBand.push(Math.max(...window));
+        const w = values.slice(start, end);
+        minBand.push(Math.min(...w));
+        maxBand.push(Math.max(...w));
     }
 
-    // Seuils visibles dans la plage du graphique
-    const dataMin = Math.min(...values);
-    const dataMax = Math.max(...values);
+    // Seuils
+    const dataMin = Math.min(...values), dataMax = Math.max(...values);
     const margin = (dataMax - dataMin) * 0.15;
-    const yMin = dataMin - margin;
-    const yMax = dataMax + margin;
     const thresholds = (sensor.config.thresholds || []).filter(t =>
-        t.value >= yMin && t.value <= yMax
+        t.value >= dataMin - margin && t.value <= dataMax + margin
     );
-
-    // Datasets seuils
     const thresholdDatasets = thresholds.map(t => ({
         data: new Array(values.length).fill(t.value),
-        borderColor: t.color,
-        borderWidth: 1.5,
-        borderDash: t.dash || [6, 4],
-        pointRadius: 0,
-        pointHoverRadius: 0,
-        fill: false,
-        tension: 0,
-        order: 2
+        borderColor: t.color, borderWidth: 1.5, borderDash: t.dash || [6, 4],
+        pointRadius: 0, pointHoverRadius: 0, fill: false, tension: 0, order: 2
     }));
 
-    // Format des labels selon la période
+    // Format labels
     const formatLabel = (ts) => {
         const count = PERIODS[AppState.currentPeriod]?.count || 24;
-        if (count <= 6) return formatTime(ts);
         if (count <= 24) return formatTime(ts);
         if (count <= 168) return formatDayTime(ts);
         return formatDayShort(ts);
     };
     const formattedLabels = labels.map(formatLabel);
 
-    // Indices des points à minuit (0h00)
-    const midnightIndices = [];
-    const midnightDates = [];
+    // Lignes verticales minuit
+    const midnightIndices = [], midnightDates = [];
     labels.forEach((ts, i) => {
         const d = new Date(ts);
         if (d.getHours() === 0) {
@@ -630,115 +626,43 @@ function updateChart(sensor, filteredHistory, avg) {
             midnightDates.push(d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
         }
     });
-
-    // Plugin lignes verticales à minuit
-    const midnightLinesPlugin = {
-        id: 'midnightLines',
-        afterDraw(chart) {
-            const { ctx, chartArea, scales } = chart;
-            if (!scales.x || midnightIndices.length === 0) return;
-
-            ctx.save();
-            midnightIndices.forEach((idx, i) => {
-                const x = scales.x.getPixelForValue(idx);
-                if (x < chartArea.left || x > chartArea.right) return;
-
-                // Ligne verticale pointillée
-                ctx.beginPath();
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-                ctx.lineWidth = 1;
-                ctx.setLineDash([4, 4]);
-                ctx.moveTo(x, chartArea.top);
-                ctx.lineTo(x, chartArea.bottom);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                // Label date au-dessus
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.font = '10px -apple-system, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(midnightDates[i], x, chartArea.top - 4);
-            });
-            ctx.restore();
-        }
-    };
+    const midnightPlugin = createMidnightPlugin(midnightIndices, midnightDates);
 
     if (mainChart) { mainChart.destroy(); mainChart = null; }
 
     mainChart = new Chart(ctx, {
         type: 'line',
-        plugins: [midnightLinesPlugin],
+        plugins: [midnightPlugin],
         data: {
             labels: formattedLabels,
             datasets: [
-                // Zone min/max (en arrière-plan)
-                {
-                    data: maxBand,
-                    borderColor: 'transparent',
-                    backgroundColor: sensor.config.color + '12',
-                    fill: '+1',
-                    pointRadius: 0,
-                    pointHoverRadius: 0,
-                    tension: 0.4,
-                    order: 3
-                },
-                {
-                    data: minBand,
-                    borderColor: 'transparent',
-                    backgroundColor: 'transparent',
-                    fill: false,
-                    pointRadius: 0,
-                    pointHoverRadius: 0,
-                    tension: 0.4,
-                    order: 3
-                },
-                // Courbe principale
-                {
-                    data: values,
-                    borderColor: sensor.config.color,
-                    backgroundColor: 'transparent',
-                    borderWidth: 2.5,
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 3,
-                    pointHoverRadius: 8,
-                    pointBackgroundColor: pointColors,
-                    pointBorderColor: pointColors,
-                    pointHoverBackgroundColor: pointColors,
-                    pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 2,
-                    segment: {
-                        borderColor: (ctx) => {
-                            if (!ctx.p0 || !ctx.p1) return sensor.config.color;
-                            const avg = (ctx.p0.parsed.y + ctx.p1.parsed.y) / 2;
-                            return getColorFn(avg);
-                        }
-                    },
-                    order: 1
-                },
-                // Seuils
+                { data: maxBand, borderColor: 'transparent', backgroundColor: sensor.config.color + '12',
+                  fill: '+1', pointRadius: 0, pointHoverRadius: 0, tension: 0.4, order: 3 },
+                { data: minBand, borderColor: 'transparent', backgroundColor: 'transparent',
+                  fill: false, pointRadius: 0, pointHoverRadius: 0, tension: 0.4, order: 3 },
+                { data: values, borderColor: sensor.config.color, backgroundColor: 'transparent',
+                  borderWidth: 2.5, fill: false, tension: 0.4, pointRadius: 3, pointHoverRadius: 8,
+                  pointBackgroundColor: pointColors, pointBorderColor: pointColors,
+                  pointHoverBackgroundColor: pointColors, pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2,
+                  segment: { borderColor: (c) => {
+                      if (!c.p0 || !c.p1) return sensor.config.color;
+                      return getColorFn((c.p0.parsed.y + c.p1.parsed.y) / 2);
+                  }}, order: 1 },
                 ...thresholdDatasets
             ]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: true, maintainAspectRatio: false,
             layout: { padding: { top: midnightIndices.length > 0 ? 18 : 0 } },
             interaction: { intersect: false, mode: 'index' },
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(10, 10, 15, 0.95)',
-                    titleColor: '#fff',
-                    bodyColor: 'rgba(255,255,255,0.85)',
-                    borderColor: 'rgba(255, 255, 255, 0.15)',
-                    borderWidth: 1,
-                    cornerRadius: 12,
-                    padding: 14,
-                    titleFont: { size: 13, weight: '600' },
-                    bodyFont: { size: 12 },
-                    displayColors: false,
-                    filter: (item) => item.datasetIndex === 2, // Seulement la courbe principale
+                    backgroundColor: 'rgba(10,10,15,0.95)', titleColor: '#fff',
+                    bodyColor: 'rgba(255,255,255,0.85)', borderColor: 'rgba(255,255,255,0.15)',
+                    borderWidth: 1, cornerRadius: 12, padding: 14, displayColors: false,
+                    titleFont: { size: 13, weight: '600' }, bodyFont: { size: 12 },
+                    filter: (item) => item.datasetIndex === 2,
                     callbacks: {
                         title: (items) => {
                             if (!items.length) return '';
@@ -750,35 +674,186 @@ function updateChart(sensor, filteredHistory, avg) {
                         },
                         label: (item) => {
                             const val = item.raw;
-                            const formatted = sensor.config.format(val) + sensor.config.unit;
-                            const ecart = val - avg;
-                            const sign = ecart >= 0 ? '+' : '';
-                            const status = sensor.config.getStatus(val);
                             return [
-                                `Valeur : ${formatted}`,
-                                `État : ${status}`,
-                                `Écart moy. : ${sign}${sensor.config.format(ecart)}${sensor.config.unit}`
+                                `Valeur : ${sensor.config.format(val)}${sensor.config.unit}`,
+                                `État : ${sensor.config.getStatus(val)}`,
+                                `Écart moy. : ${(val - avg) >= 0 ? '+' : ''}${sensor.config.format(val - avg)}${sensor.config.unit}`
                             ];
                         }
                     }
                 }
             },
             scales: {
-                x: {
-                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-                    ticks: { color: 'rgba(255,255,255,0.35)', maxTicksLimit: 8, maxRotation: 0, font: { size: 11 } }
-                },
-                y: {
-                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-                    ticks: {
-                        color: 'rgba(255,255,255,0.35)',
-                        font: { size: 11 },
-                        callback: v => sensor.config.format(v) + sensor.config.unit
-                    }
-                }
+                x: { grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                     ticks: { color: 'rgba(255,255,255,0.35)', maxTicksLimit: 8, maxRotation: 0, font: { size: 11 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                     ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 },
+                              callback: v => sensor.config.format(v) + sensor.config.unit } }
             }
         }
     });
+}
+
+// ============================================
+// GRAPHIQUE MODE STATS (1 mois, 3 mois)
+// 3 courbes : Min, Moyenne, Max + zone ombrée
+// ============================================
+function updateChartStats(sensor, stats) {
+    const ctx = document.getElementById('mainChart').getContext('2d');
+
+    if (stats.length === 0) {
+        if (mainChart) { mainChart.destroy(); mainChart = null; }
+        return;
+    }
+
+    const labels = stats.map(s => s.jour);
+    const avgValues = stats.map(s => s.avg);
+    const minValues = stats.map(s => s.min);
+    const maxValues = stats.map(s => s.max);
+
+    const formattedLabels = labels.map(j => formatDayShort(j + 'T00:00:00'));
+
+    // Seuils
+    const globalMin = Math.min(...minValues), globalMax = Math.max(...maxValues);
+    const margin = (globalMax - globalMin) * 0.15;
+    const thresholds = (sensor.config.thresholds || []).filter(t =>
+        t.value >= globalMin - margin && t.value <= globalMax + margin
+    );
+    const thresholdDatasets = thresholds.map(t => ({
+        data: new Array(stats.length).fill(t.value),
+        borderColor: t.color, borderWidth: 1.5, borderDash: t.dash || [6, 4],
+        pointRadius: 0, pointHoverRadius: 0, fill: false, tension: 0, order: 4
+    }));
+
+    if (mainChart) { mainChart.destroy(); mainChart = null; }
+
+    mainChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: formattedLabels,
+            datasets: [
+                // Zone ombrée entre max et min
+                {
+                    label: 'Max',
+                    data: maxValues,
+                    borderColor: 'rgba(255, 107, 107, 0.6)',
+                    backgroundColor: 'rgba(255, 107, 107, 0.08)',
+                    borderWidth: 1.5,
+                    fill: '+2', // fill jusqu'au dataset min (index +2)
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#ff6b6b',
+                    pointHoverBackgroundColor: '#ff6b6b',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2,
+                    order: 2
+                },
+                // Courbe moyenne (principale)
+                {
+                    label: 'Moyenne',
+                    data: avgValues,
+                    borderColor: sensor.config.color,
+                    backgroundColor: 'transparent',
+                    borderWidth: 2.5,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: sensor.config.color,
+                    pointHoverBackgroundColor: sensor.config.color,
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2,
+                    order: 1
+                },
+                // Courbe min
+                {
+                    label: 'Min',
+                    data: minValues,
+                    borderColor: 'rgba(84, 160, 255, 0.6)',
+                    backgroundColor: 'rgba(84, 160, 255, 0.08)',
+                    borderWidth: 1.5,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 2,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#54a0ff',
+                    pointHoverBackgroundColor: '#54a0ff',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2,
+                    order: 3
+                },
+                ...thresholdDatasets
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(10,10,15,0.95)', titleColor: '#fff',
+                    bodyColor: 'rgba(255,255,255,0.85)', borderColor: 'rgba(255,255,255,0.15)',
+                    borderWidth: 1, cornerRadius: 12, padding: 14, displayColors: true,
+                    titleFont: { size: 13, weight: '600' }, bodyFont: { size: 12 },
+                    filter: (item) => item.datasetIndex <= 2,
+                    callbacks: {
+                        title: (items) => {
+                            if (!items.length) return '';
+                            const idx = items[0].dataIndex;
+                            const jour = stats[idx]?.jour;
+                            if (!jour) return items[0].label;
+                            const d = new Date(jour + 'T00:00:00');
+                            return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                        },
+                        label: (item) => {
+                            const val = item.raw;
+                            const labels = ['Max', 'Moyenne', 'Min'];
+                            return ` ${labels[item.datasetIndex]} : ${sensor.config.format(val)}${sensor.config.unit}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                     ticks: { color: 'rgba(255,255,255,0.35)', maxTicksLimit: 10, maxRotation: 0, font: { size: 11 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                     ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 },
+                              callback: v => sensor.config.format(v) + sensor.config.unit } }
+            }
+        }
+    });
+}
+
+// ============================================
+// PLUGIN LIGNES MINUIT
+// ============================================
+function createMidnightPlugin(midnightIndices, midnightDates) {
+    return {
+        id: 'midnightLines',
+        afterDraw(chart) {
+            const { ctx, chartArea, scales } = chart;
+            if (!scales.x || midnightIndices.length === 0) return;
+            ctx.save();
+            midnightIndices.forEach((idx, i) => {
+                const x = scales.x.getPixelForValue(idx);
+                if (x < chartArea.left || x > chartArea.right) return;
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.moveTo(x, chartArea.top);
+                ctx.lineTo(x, chartArea.bottom);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.font = '10px -apple-system, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(midnightDates[i], x, chartArea.top - 4);
+            });
+            ctx.restore();
+        }
+    };
 }
 
 // ============================================
@@ -791,8 +866,6 @@ function showRooms() {
     AppState.currentRoom = null;
     AppState.currentSensor = null;
     AppState.currentPeriod = '24h';
-    AppState.currentHourFilter = 'all';
-    document.getElementById('hourSelector').classList.add('hidden');
     if (mainChart) { mainChart.destroy(); mainChart = null; }
 }
 
