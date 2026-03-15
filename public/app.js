@@ -410,7 +410,7 @@ function setPeriod(period) {
 
     // Afficher/masquer le sélecteur d'heure (uniquement pour 1m et 3m)
     const hourSelector = document.getElementById('hourSelector');
-    if (period === '1m' || period === '3m') {
+    if (period === '7d' || period === '1m' || period === '3m') {
         hourSelector.classList.remove('hidden');
     } else {
         hourSelector.classList.add('hidden');
@@ -442,19 +442,21 @@ function filterByPeriod(history) {
 
     const n = periodConf.count;
 
-    // Pour 1 mois et 3 mois : filtrer par heures (2h, 8h, 14h, 20h)
-    if (AppState.currentPeriod === '1m' || AppState.currentPeriod === '3m') {
+    // Pour 7j, 1 mois et 3 mois : filtrer par heures (2h, 8h, 14h, 20h)
+    if (AppState.currentPeriod === '7d' || AppState.currentPeriod === '1m' || AppState.currentPeriod === '3m') {
         let filtered;
         if (AppState.currentHourFilter !== 'all') {
-            // Une seule heure sélectionnée
             filtered = history.filter(h => {
                 const hour = new Date(h.time).getHours();
                 return hour === AppState.currentHourFilter;
             });
-            const count = AppState.currentPeriod === '1m' ? 30 : 90; // 1 mesure/jour
+            const count = AppState.currentPeriod === '7d' ? 7 : AppState.currentPeriod === '1m' ? 30 : 90;
             return filtered.length <= count ? filtered : filtered.slice(-count);
         } else {
-            // Toutes les heures de référence
+            // "Toutes" : pour 7j on garde tout, pour 1m/3m on filtre les heures de référence
+            if (AppState.currentPeriod === '7d') {
+                return history.length <= n ? history : history.slice(-n);
+            }
             filtered = history.filter(h => {
                 const hour = new Date(h.time).getHours();
                 return hour === 2 || hour === 8 || hour === 14 || hour === 20;
