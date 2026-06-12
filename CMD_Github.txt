@@ -1,0 +1,10 @@
+__ Creation nouvelle branche __
+git checkout -b dev
+
+__ Push quand sauvegarde __
+git add .
+git commit -m "Description de ce que tu as fait"
+git push origin dev
+
+__ Push forcer __
+git push origin main --force-with-lease
